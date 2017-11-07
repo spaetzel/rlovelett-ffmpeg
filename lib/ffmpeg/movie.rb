@@ -190,6 +190,10 @@ module FFMPEG
       Transcoder.new(self, output_file, options.merge(screenshot: true), transcoder_options).run &block
     end
 
+    def blackdetect
+      BlackDetect.new(self).run
+    end
+
     protected
     def aspect_from_dar
       return nil unless dar
