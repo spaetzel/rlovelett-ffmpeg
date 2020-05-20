@@ -13,6 +13,7 @@ Gem::Specification.new do |s|
   s.summary     = "Wraps ffmpeg to read metadata and transcodes videos."
 
   s.add_dependency('multi_json', '~> 1.8')
+  s.add_dependency('posix-spawn', '~> 0.3.13')
 
   s.add_development_dependency("rspec", "~> 2.14.0")
   s.add_development_dependency("rake", "~> 10.1.0")
