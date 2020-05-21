@@ -30,7 +30,7 @@ module FFMPEG
       command = "#{FFMPEG.ffprobe_binary}#{optional_arguements} -i #{Shellwords.escape(path)} -print_format json -show_format -show_streams -show_error"
       spawn = POSIX::Spawn::Child.new(command)
 
-      raise "Spawn Error! stdout: #{spawn.out} stderr: #{spawn.err} Command: #{cmd}" unless spawn.success?
+      raise "Spawn Error! stdout: #{spawn.out} stderr: #{spawn.err} Command: #{command}" unless spawn.success?
 
       std_output = spawn.out
       std_error = spawn.err
