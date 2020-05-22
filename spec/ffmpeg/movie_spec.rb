@@ -138,9 +138,10 @@ module FFMPEG
       end
 
       context "given an impossible DAR" do
-        before(:all) do
-          fake_output = StringIO.new(File.read("#{fixture_path}/outputs/file_with_weird_dar.txt"))
-          Open3.stub(:popen3).and_yield(nil,fake_output,nil)
+        before(:each) do
+          fake_output = File.read("#{fixture_path}/outputs/file_with_weird_dar.txt")
+          spawn_double = double(:out => fake_output, :err => '')
+          POSIX::Spawn::Child.stub(:new).and_return(spawn_double)
           @movie = Movie.new(__FILE__)
         end
 
@@ -168,9 +169,10 @@ module FFMPEG
       end
 
       context "given an impossible SAR" do
-        before(:all) do
-          fake_output = StringIO.new(File.read("#{fixture_path}/outputs/file_with_weird_sar.txt"))
-          Open3.stub(:popen3).and_yield(nil,fake_output,nil)
+        before(:each) do
+          fake_output = File.read("#{fixture_path}/outputs/file_with_weird_sar.txt")
+          spawn_double = double(:out => fake_output, :err => '')
+          POSIX::Spawn::Child.stub(:new).and_return(spawn_double)
           @movie = Movie.new(__FILE__)
         end
 
@@ -185,16 +187,18 @@ module FFMPEG
 
       context "given a file with ISO-8859-1 characters in output" do
         it "should not crash" do
-          fake_output = StringIO.new(File.read("#{fixture_path}/outputs/file_with_iso-8859-1.txt"))
-          Open3.stub(:popen3).and_yield(nil, fake_output, nil)
+          fake_output = File.read("#{fixture_path}/outputs/file_with_iso-8859-1.txt")
+          spawn_double = double(:out => fake_output, :err => '')
+          POSIX::Spawn::Child.stub(:new).and_return(spawn_double)
           expect { Movie.new(__FILE__) }.to_not raise_error
         end
       end
 
       context "given a file with 5.1 audio" do
-        before(:all) do
-          fake_output = StringIO.new(File.read("#{fixture_path}/outputs/file_with_surround_sound.txt"))
-          Open3.stub(:popen3).and_yield(nil, fake_output, nil)
+        before(:each) do
+          fake_output = File.read("#{fixture_path}/outputs/file_with_surround_sound.txt")
+          spawn_double = double(:out => fake_output, :err => '')
+          POSIX::Spawn::Child.stub(:new).and_return(spawn_double)
           @movie = Movie.new(__FILE__)
         end
 
@@ -204,9 +208,10 @@ module FFMPEG
       end
 
       context "given a file with no audio" do
-        before(:all) do
-          fake_output = StringIO.new(File.read("#{fixture_path}/outputs/file_with_no_audio.txt"))
-          Open3.stub(:popen3).and_yield(nil, fake_output, nil)
+        before(:each) do
+          fake_output = File.read("#{fixture_path}/outputs/file_with_no_audio.txt")
+          spawn_double = double(:out => fake_output, :err => '')
+          POSIX::Spawn::Child.stub(:new).and_return(spawn_double)
           @movie = Movie.new(__FILE__)
         end
 
@@ -216,15 +221,18 @@ module FFMPEG
       end
 
       context "given a file with non supported audio" do
-        before(:all) do
-          fake_stdout = StringIO.new(File.read("#{fixture_path}/outputs/file_with_non_supported_audio_stdout.txt"))
-          fake_stderr = StringIO.new(File.read("#{fixture_path}/outputs/file_with_non_supported_audio_stderr.txt"))
-          Open3.stub(:popen3).and_yield(nil, fake_stdout, fake_stderr)
+        before(:each) do
+          fake_stdout = File.read("#{fixture_path}/outputs/file_with_non_supported_audio_stdout.txt")
+          fake_stderr = File.read("#{fixture_path}/outputs/file_with_non_supported_audio_stderr.txt")
+          spawn_double = double(:out => fake_stdout, :err => fake_stderr)
+          puts 'ERROR'
+          puts spawn_double.err
+          POSIX::Spawn::Child.stub(:new).and_return(spawn_double)
           @movie = Movie.new(__FILE__)
         end
 
-        it "should not be valid" do
-          @movie.should_not be_valid
+        it "should be valid" do
+          @movie.should be_valid
         end
       end
 
@@ -250,7 +258,7 @@ module FFMPEG
         end
 
         it "should parse the creation_time" do
-          @movie.creation_time.should == Time.parse("2010-02-05 16:05:04")
+          @movie.creation_time.should == Time.parse("2010-02-05 16:05:04 UTC")
         end
 
         it "should parse video stream information" do
