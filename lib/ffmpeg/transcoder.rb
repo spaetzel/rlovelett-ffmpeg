@@ -13,7 +13,7 @@ module FFMPEG
       @@timeout
     end
 
-    def initialize(movie, output_file, options = EncodingOptions.new, transcoder_options = {})
+    def initialize(movie, output_file, options = EncodingOptions.new, transcoder_options = {}, transcoder_prefix_options = {})
       @movie = movie
       @output_file = output_file
 
