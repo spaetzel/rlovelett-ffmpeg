@@ -10,8 +10,10 @@ Gem::Specification.new do |s|
   s.authors     = ["David Backeus", "Ryan Lovelett"]
   s.email       = ["david@streamio.com", "ryan@lovelett.me"]
   s.homepage    = "http://github.com/RLovelett/rlovelett-ffmpeg"
+
   s.summary     = "Wraps ffmpeg to read metadata and transcodes videos."
 
+  s.add_dependency "rake", ">= 12.3.3"
   s.add_dependency('multi_json', '~> 1.8')
   s.add_dependency('posix-spawn', '~> 0.3.13')
 
