@@ -394,7 +394,7 @@ module FFMPEG
       end
 
       it "should parse the rotation" do
-        @movie.rotation.should == 90
+        @movie.rotation.should == -90
       end
     end
 
