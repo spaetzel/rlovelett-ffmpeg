@@ -54,7 +54,10 @@ module FFMPEG
         end
       end
 
-      @invalid = true if std_error != ''
+      if std_error != ''
+        @invalid = true 
+        FFMPEG.logger.error(std_error)
+      end
 
       raise Error, "Failed to detect black frames: #{std_output} :: #{std_error}" if std_error != ''
 
