@@ -89,11 +89,13 @@ module FFMPEG
 
           @video_stream = "#{video_stream[:codec_name]} (#{video_stream[:profile]}) (#{video_stream[:codec_tag_string]} / #{video_stream[:codec_tag]}), #{colorspace}, #{resolution} [SAR #{sar} DAR #{dar}]"
 
-          @rotation = if video_stream.key?(:tags) and video_stream[:tags].key?(:rotate)
-                        video_stream[:tags][:rotate].to_i
-                      else
-                        nil
-                      end
+          video_stream[:side_data_list].each do |side_data_entry|
+            @rotation = if side_data_entry.key?(:rotation)
+                          side_data_entry[:rotation].to_i
+                        else
+                          nil
+                        end
+          end if video_stream.key?(:side_data_list)
         end
 
         @audio_streams = audio_streams.map do |stream|
@@ -124,9 +126,19 @@ module FFMPEG
       unsupported_stream_ids = unsupported_streams(std_error)
       nil_or_unsupported = ->(stream) { stream.nil? || unsupported_stream_ids.include?(stream[:index]) }
 
-      @invalid = true if nil_or_unsupported.(video_stream) && nil_or_unsupported.(audio_stream)
-      @invalid = true if metadata.key?(:error)
-      @invalid = true if std_error.include?("could not find codec parameters")
+      nil_or_unsupported_stream = nil_or_unsupported.(video_stream) && nil_or_unsupported.(audio_stream)
+      metadata_error = metadata.key?(:error)
+      std_err_codec_failure = std_error.include?("could not find codec parameters")
+      FFMPEG.logger.error(std_error)
+      if nil_or_unsupported_stream or metadata_error or std_err_codec_failure
+        @invalid = true 
+        FFMPEG.logger.error(
+          nil_or_unsupported_stream: nil_or_unsupported_stream,
+          metadata_error: metadata_error,
+          std_err_codec_failure: std_err_codec_failure,
+          std_error: std_error
+        )
+      end
     end
 
     def unsupported_streams(std_error)
@@ -186,12 +198,12 @@ module FFMPEG
       width && height && (width > height)
     end
 
-    def transcode(output_file, options = EncodingOptions.new, transcoder_options = {}, &block)
-      Transcoder.new(self, output_file, options, transcoder_options).run &block
+    def transcode(output_file, options = EncodingOptions.new, transcoder_options = {}, transcoder_prefix_options = {}, &block)
+      Transcoder.new(self, output_file, options, transcoder_options, transcoder_prefix_options).run &block
     end
 
-    def screenshot(output_file, options = EncodingOptions.new, transcoder_options = {}, &block)
-      Transcoder.new(self, output_file, options.merge(screenshot: true), transcoder_options).run &block
+    def screenshot(output_file, options = EncodingOptions.new, transcoder_options = {}, transcoder_prefix_options = {}, &block)
+      Transcoder.new(self, output_file, options.merge(screenshot: true), transcoder_options, transcoder_prefix_options).run &block
     end
 
     def blackdetect

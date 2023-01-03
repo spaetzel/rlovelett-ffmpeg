@@ -394,7 +394,7 @@ module FFMPEG
       end
 
       it "should parse the rotation" do
-        @movie.rotation.should == 90
+        @movie.rotation.should == -90
       end
     end
 
@@ -404,11 +404,11 @@ module FFMPEG
 
         transcoder_double = double(Transcoder)
         Transcoder.should_receive(:new).
-          with(movie, "#{tmp_path}/awesome.flv", {custom: "-vcodec libx264"}, preserve_aspect_ratio: :width).
+          with(movie, "#{tmp_path}/awesome.flv", {custom: "-vcodec libx264"}, {preserve_aspect_ratio: :width}, {}).
           and_return(transcoder_double)
         transcoder_double.should_receive(:run)
 
-        movie.transcode("#{tmp_path}/awesome.flv", {custom: "-vcodec libx264"}, preserve_aspect_ratio: :width)
+        movie.transcode("#{tmp_path}/awesome.flv", {custom: "-vcodec libx264"}, {preserve_aspect_ratio: :width})
       end
     end
 
@@ -418,11 +418,11 @@ module FFMPEG
 
         transcoder_double = double(Transcoder)
         Transcoder.should_receive(:new).
-          with(movie, "#{tmp_path}/awesome.jpg", {seek_time: 2, dimensions: "640x480", screenshot: true}, preserve_aspect_ratio: :width).
+          with(movie, "#{tmp_path}/awesome.jpg", {seek_time: 2, dimensions: "640x480", screenshot: true}, {preserve_aspect_ratio: :width}, {}).
           and_return(transcoder_double)
         transcoder_double.should_receive(:run)
 
-        movie.screenshot("#{tmp_path}/awesome.jpg", {seek_time: 2, dimensions: "640x480"}, preserve_aspect_ratio: :width)
+        movie.screenshot("#{tmp_path}/awesome.jpg", {seek_time: 2, dimensions: "640x480"}, {preserve_aspect_ratio: :width})
       end
     end
   end

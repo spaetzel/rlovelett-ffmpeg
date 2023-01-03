@@ -2,12 +2,17 @@ require 'shellwords'
 
 module FFMPEG
   class EncodingOptions < Hash
-    def initialize(options = {})
+    def initialize(options = {}, prefix_options = {})
+      @prefix_options = prefix_options
       merge!(options)
     end
 
     def to_s
       params = collect do |key, value|
+        send("convert_#{key}", value) if value && supports_option?(key)
+      end
+
+      prefix_params = @prefix_options&.map do |key, value|
         send("convert_#{key}", value) if value && supports_option?(key)
       end
 
@@ -18,7 +23,7 @@ module FFMPEG
       codecs  = params.select { |p| p =~ /codec/ }
       presets = params.select { |p| p =~ /\-.pre/ }
       other   = params - codecs - presets - input - seek
-      params  = seek + input + codecs + presets + other
+      params  = prefix_params + seek + input + codecs + presets + other
 
       params_string = params.join(" ")
       params_string << " #{convert_aspect(calculate_aspect)}" if calculate_aspect?

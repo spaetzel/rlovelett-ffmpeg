@@ -13,21 +13,23 @@ module FFMPEG
       @@timeout
     end
 
-    def initialize(movie, output_file, options = EncodingOptions.new, transcoder_options = {})
+    def initialize(movie, output_file, options = EncodingOptions.new, transcoder_options = {}, transcoder_prefix_options = {})
       @movie = movie
       @output_file = output_file
 
       if options.is_a?(String)
-        @raw_options = "-i #{Shellwords.escape(@movie.path)} " + options
+        prefix_options = convert_prefix_options_to_string(transcoder_prefix_options)
+        @raw_options = "#{prefix_options}-i #{Shellwords.escape(@movie.path)} #{options}"
       elsif options.is_a?(EncodingOptions)
         @raw_options = options.merge(:input => @movie.path) unless options.include? :input
       elsif options.is_a?(Hash)
-        @raw_options = EncodingOptions.new(options.merge(:input => @movie.path))
+        @raw_options = EncodingOptions.new(options.merge(:input => @movie.path), transcoder_prefix_options)
       else
         raise ArgumentError, "Unknown options format '#{options.class}', should be either EncodingOptions, Hash or String."
       end
 
       @transcoder_options = transcoder_options
+      @transcoder_prefix_options = transcoder_prefix_options
       @errors = []
 
       apply_transcoder_options
@@ -148,6 +150,12 @@ module FFMPEG
       output[/test/]
     rescue ArgumentError
       output.force_encoding("ISO-8859-1")
+    end
+
+    def convert_prefix_options_to_string(transcoder_prefix_options)
+      prefix_options = "#{transcoder_prefix_options.is_a?(String) ? transcoder_prefix_options : EncodingOptions.new(transcoder_prefix_options)}"
+      prefix_options = "#{prefix_options} " if prefix_options.length > 0
+      return prefix_options
     end
   end
 end
