@@ -266,17 +266,21 @@ module FFMPEG
     context "with :validate => false set as transcoding_options" do
       let(:transcoder) { Transcoder.new(movie, "tmp.mp4", {},{:validate => false}) }
 
-      before { transcoder.stub(:transcode_movie) }
-      after { FileUtils.rm_f "#{tmp_path}/tmp.mp4" }
+      before(:each) do
+        allow(transcoder).to receive(:transcode_movie)
+      end
+      after(:each) do
+        FileUtils.rm_f "#{tmp_path}/tmp.mp4"
+      end
 
       it "should not validate the movie output" do
         expect(transcoder).not_to receive(:validate_output_file)
-        transcoder.stub(:encoded)
+        allow(transcoder).to receive(:encoded)
         transcoder.run
       end
 
       it "should not return Movie object" do
-        transcoder.stub(:validate_output_file)
+        allow(transcoder).to receive(:validate_output_file)
         expect(transcoder).not_to receive(:encoded)
         expect(transcoder.run).to eq(nil)
       end
