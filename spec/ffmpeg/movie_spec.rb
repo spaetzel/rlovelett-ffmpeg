@@ -70,16 +70,16 @@ module FFMPEG
         end
 
         it "should know the file size" do
-          File.should_receive(:size).with(__FILE__).and_return(1)
+          expect(File).to receive(:size).with(__FILE__).and_return(1)
           @movie.size.should == 1
         end
 
         it 'should not be portrait' do
-          @movie.portrait?.should_not be_true
+          @movie.portrait?.should_not be_truthy
         end
 
         it 'should not be landscape' do
-          @movie.landscape?.should_not be_true
+          @movie.landscape?.should_not be_truthy
         end
       end
 
@@ -93,11 +93,11 @@ module FFMPEG
         end
 
         it 'should not be portrait' do
-          @movie.portrait?.should_not be_true
+          @movie.portrait?.should_not be_truthy
         end
 
         it 'should not be landscape' do
-          @movie.landscape?.should_not be_true
+          @movie.landscape?.should_not be_truthy
         end
       end
 
@@ -115,11 +115,11 @@ module FFMPEG
         end
 
         it 'should not be portrait' do
-          @movie.portrait?.should_not be_true
+          @movie.portrait?.should_not be_truthy
         end
 
         it 'should not be landscape' do
-          @movie.landscape?.should_not be_true
+          @movie.landscape?.should_not be_truthy
         end
       end
 
@@ -366,11 +366,11 @@ module FFMPEG
       end
 
       it 'should not be portrait' do
-        @movie.portrait?.should_not be_true
+        @movie.portrait?.should_not be_truthy
       end
 
       it 'should be landscape' do
-        @movie.landscape?.should be_true
+        @movie.landscape?.should be_truthy
       end
     end
 
@@ -380,11 +380,11 @@ module FFMPEG
       end
 
       it 'should not be landscape' do
-        @movie.portrait?.should_not be_true
+        @movie.portrait?.should_not be_truthy
       end
 
       it 'should be portrait' do
-        @movie.landscape?.should be_true
+        @movie.landscape?.should be_truthy
       end
     end
 
