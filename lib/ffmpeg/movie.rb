@@ -14,7 +14,7 @@ module FFMPEG
     UNSUPPORTED_CODEC_PATTERN = /^Unsupported codec with id (\d+) for input stream (\d+)$/
 
     def initialize(path)
-      unless File.exists?(path) || path =~ URI::regexp(["http", "https"])
+      unless File.exist?(path) || path =~ URI::regexp(["http", "https"])
         raise Errno::ENOENT, "the file '#{path}' does not exist"
       end
 
