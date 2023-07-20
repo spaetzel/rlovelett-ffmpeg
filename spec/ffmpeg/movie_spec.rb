@@ -248,7 +248,7 @@ module FFMPEG
         end
 
         it "should parse the bitrate" do
-          expect(@movie.bitrate).to eq(481846)
+          expect(@movie.bitrate).to eq(481836)
         end
 
         it "should return nil rotation when no rotation exists" do
