@@ -21,13 +21,13 @@ module FFMPEG
       @path = path
 
       if @path.end_with?('.m3u8')
-        optional_arguements = ' -allowed_extensions ALL'
+        optional_arguements = '-allowed_extensions ALL'
       else
         optional_arguements = ''
       end
 
       # ffmpeg will output to stderr
-      command = "#{FFMPEG.ffprobe_binary}#{optional_arguements} -i #{Shellwords.escape(path)} -print_format json -show_format -show_streams -show_error"
+      command = "#{FFMPEG.ffprobe_binary} -hide_banner #{optional_arguements} -i #{Shellwords.escape(path)} -print_format json -show_format -show_streams -show_error"
       spawn = POSIX::Spawn::Child.new(command)
 
       std_output = spawn.out
