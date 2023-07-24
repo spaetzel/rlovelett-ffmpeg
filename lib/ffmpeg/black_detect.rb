@@ -15,7 +15,7 @@ module FFMPEG
 
     def run
       # ffmpeg will output to stderr
-      command = "#{FFMPEG.ffprobe_binary} -hide_banner -f lavfi -i \"movie=#{Shellwords.escape(@movie.path)},blackdetect[out0]\" -show_entries tags=lavfi.black_start,lavfi.black_end -of default=nw=1 -v quiet"
+      command = "#{FFMPEG.ffprobe_binary} -hide_banner -analyzeduration 10000000 -probesize 10000000 -f lavfi -i \"movie=#{Shellwords.escape(@movie.path)},blackdetect[out0]\" -show_entries tags=lavfi.black_start,lavfi.black_end -of default=nw=1 -v quiet"
       std_output = ''
       std_error = ''
 
