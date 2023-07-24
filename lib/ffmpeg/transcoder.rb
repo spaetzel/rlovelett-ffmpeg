@@ -99,7 +99,7 @@ module FFMPEG
       else
         errors = "Errors: #{@errors.join(", ")}. "
         FFMPEG.logger.error "Failed encoding...\n#{@command}\n\n#{@output}\n#{errors}\n"
-        raise Error, "Failed encoding.#{errors} Full output: #{@output}"
+        raise Error, "Failed encoding. #{errors} Full output: #{@output}"
       end
     end
 
