@@ -13,7 +13,7 @@ module FFMPEG
 
     UNSUPPORTED_CODEC_PATTERN = /^Unsupported codec with id (\d+) for input stream (\d+)$/
 
-    def initialize(path)
+    def initialize(path, analyzeduration = 15000000, probesize=15000000 )
       unless File.exist?(path) || path =~ URI::regexp(["http", "https"])
         raise Errno::ENOENT, "the file '#{path}' does not exist"
       end
@@ -27,7 +27,7 @@ module FFMPEG
       end
 
       # ffmpeg will output to stderr
-      command = "#{FFMPEG.ffprobe_binary} -hide_banner -analyzeduration 10000000 -probesize 10000000 #{optional_arguments} -i #{Shellwords.escape(path)} -print_format json -show_format -show_streams -show_error"
+      command = "#{FFMPEG.ffprobe_binary} -hide_banner -analyzeduration #{analyzeduration} -probesize #{probesize} #{optional_arguments} -i #{Shellwords.escape(path)} -print_format json -show_format -show_streams -show_error"
       spawn = POSIX::Spawn::Child.new(command)
 
       std_output = spawn.out
