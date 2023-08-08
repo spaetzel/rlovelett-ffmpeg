@@ -19,6 +19,8 @@ module FFMPEG
       end
 
       @path = path
+      @analyzeduration = analyzeduration;
+      @probesize = probesize;
 
       if @path.end_with?('.m3u8')
         optional_arguments = '-allowed_extensions ALL'
@@ -27,7 +29,7 @@ module FFMPEG
       end
 
       # ffmpeg will output to stderr
-      command = "#{FFMPEG.ffprobe_binary} -hide_banner -analyzeduration #{analyzeduration} -probesize #{probesize} #{optional_arguments} -i #{Shellwords.escape(path)} -print_format json -show_format -show_streams -show_error"
+      command = "#{ffprobe_command} #{optional_arguments} -i #{Shellwords.escape(path)} -print_format json -show_format -show_streams -show_error"
       spawn = POSIX::Spawn::Child.new(command)
 
       std_output = spawn.out
@@ -139,6 +141,10 @@ module FFMPEG
           std_error: std_error
         )
       end
+    end
+
+    def ffprobe_command(binary = FFMPEG.ffprobe_binary)
+      "#{binary} -hide_banner -analyzeduration #{@analyzeduration} -probesize #{@probesize}"
     end
 
     def unsupported_streams(std_error)
