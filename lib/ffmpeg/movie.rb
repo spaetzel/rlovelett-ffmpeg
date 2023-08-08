@@ -21,13 +21,13 @@ module FFMPEG
       @path = path
 
       if @path.end_with?('.m3u8')
-        optional_arguements = '-allowed_extensions ALL'
+        optional_arguments = '-allowed_extensions ALL'
       else
-        optional_arguements = ''
+        optional_arguments = ''
       end
 
       # ffmpeg will output to stderr
-      command = "#{FFMPEG.ffprobe_binary} -hide_banner -analyzeduration 10000000 -probesize 10000000 #{optional_arguements} -i #{Shellwords.escape(path)} -print_format json -show_format -show_streams -show_error"
+      command = "#{FFMPEG.ffprobe_binary} -hide_banner -analyzeduration 10000000 -probesize 10000000 #{optional_arguments} -i #{Shellwords.escape(path)} -print_format json -show_format -show_streams -show_error"
       spawn = POSIX::Spawn::Child.new(command)
 
       std_output = spawn.out
@@ -131,7 +131,7 @@ module FFMPEG
       std_err_codec_failure = std_error.include?("could not find codec parameters")
       FFMPEG.logger.error(std_error)
       if nil_or_unsupported_stream or metadata_error or std_err_codec_failure
-        @invalid = true 
+        @invalid = true
         FFMPEG.logger.error(
           nil_or_unsupported_stream: nil_or_unsupported_stream,
           metadata_error: metadata_error,
