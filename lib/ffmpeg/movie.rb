@@ -151,7 +151,7 @@ module FFMPEG
       ff_command(FFMPEG.ffmpeg_binary)
     end
 
-    def ff_command(binary = FFMPEG.ffmpeg_binary)
+    def ff_command(binary)
       "#{binary} -hide_banner -analyzeduration #{@analyzeduration} -probesize #{@probesize}"
     end
 
