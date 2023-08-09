@@ -143,7 +143,15 @@ module FFMPEG
       end
     end
 
-    def ffprobe_command(binary = FFMPEG.ffprobe_binary)
+    def ffprobe_command()
+      ff_command(FFMPEG.ffprobe_binary)
+    end
+
+    def ffmpeg_command()
+      ff_command(FFMPEG.ffmpeg_binary)
+    end
+
+    def ff_command(binary = FFMPEG.ffmpeg_binary)
       "#{binary} -hide_banner -analyzeduration #{@analyzeduration} -probesize #{@probesize}"
     end
 
