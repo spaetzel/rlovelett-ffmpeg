@@ -2,6 +2,7 @@ require 'spec_helper.rb'
 
 module FFMPEG
   describe Movie do
+
     describe "initializing" do
       context "given a non existing file" do
         it "should throw ArgumentError" do
@@ -407,6 +408,30 @@ module FFMPEG
         expect(transcoder_double).to receive(:run)
 
         movie.transcode("#{tmp_path}/awesome.flv", {custom: "-vcodec libx264"}, {preserve_aspect_ratio: :width})
+      end
+    end
+
+    describe '#ffprobe_command' do
+      it 'returns the ffprobe command with default analyzeduration and probesize values' do
+        movie = FFMPEG::Movie.new("#{fixture_path}/movies/awesome movie.mov")
+        expect(movie.ffprobe_command).to eq("#{FFMPEG.ffprobe_binary} -hide_banner -analyzeduration 15000000 -probesize 15000000")
+      end
+
+      it 'returns the ffprobe command with custom analyzeduration and probesize values' do
+        movie = FFMPEG::Movie.new("#{fixture_path}/movies/awesome movie.mov", analyzeduration: 5000000, probesize: 1000000)
+        expect(movie.ffprobe_command).to eq("#{FFMPEG.ffprobe_binary} -hide_banner -analyzeduration 5000000 -probesize 1000000")
+      end
+    end
+
+    describe '#ffmpeg_command' do
+      it 'returns the ffmpeg command with default analyzeduration and probesize values' do
+        movie = FFMPEG::Movie.new("#{fixture_path}/movies/awesome movie.mov")
+        expect(movie.ffmpeg_command).to eq("#{FFMPEG.ffmpeg_binary} -hide_banner -analyzeduration 15000000 -probesize 15000000")
+      end
+
+      it 'returns the ffmpeg command with custom analyzeduration and probesize values' do
+        movie = FFMPEG::Movie.new("#{fixture_path}/movies/awesome movie.mov", analyzeduration: 5000000, probesize: 1000000)
+        expect(movie.ffmpeg_command).to eq("#{FFMPEG.ffmpeg_binary} -hide_banner -analyzeduration 5000000 -probesize 1000000")
       end
     end
 
