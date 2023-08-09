@@ -418,8 +418,11 @@ module FFMPEG
       end
 
       it 'returns the ffprobe command with custom analyzeduration and probesize values' do
-        movie = FFMPEG::Movie.new("#{fixture_path}/movies/awesome movie.mov", analyzeduration: 5000000, probesize: 1000000)
-        expect(movie.ffprobe_command).to eq("#{FFMPEG.ffprobe_binary} -hide_banner -analyzeduration 5000000 -probesize 1000000")
+        analyzeduration = 5000000
+        probesize = 1000000
+
+        movie = FFMPEG::Movie.new("#{fixture_path}/movies/awesome movie.mov", analyzeduration: analyzeduration, probesize: probesize)
+        expect(movie.ffprobe_command).to eq("#{FFMPEG.ffprobe_binary} -hide_banner -analyzeduration #{analyzeduration} -probesize #{probesize}}")
       end
     end
 
@@ -430,8 +433,11 @@ module FFMPEG
       end
 
       it 'returns the ffmpeg command with custom analyzeduration and probesize values' do
-        movie = FFMPEG::Movie.new("#{fixture_path}/movies/awesome movie.mov", analyzeduration: 5000000, probesize: 1000000)
-        expect(movie.ffmpeg_command).to eq("#{FFMPEG.ffmpeg_binary} -hide_banner -analyzeduration 5000000 -probesize 1000000")
+        analyzeduration = 5000000
+        probesize = 1000000
+
+        movie = FFMPEG::Movie.new("#{fixture_path}/movies/awesome movie.mov", analyzeduration: analyzeduration, probesize: probesize)
+        expect(movie.ffmpeg_command).to eq("#{FFMPEG.ffmpeg_binary} -hide_banner -analyzeduration -analyzeduration #{analyzeduration} -probesize #{probesize}}")
       end
     end
 
