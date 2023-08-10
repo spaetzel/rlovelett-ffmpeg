@@ -411,9 +411,14 @@ module FFMPEG
       end
     end
 
-    describe '#ffprobe_command' do
+    def mock_file_io(movie, path)
+
+    end
+
+    describe 'ffprobe & ffmpeg command' do
       it 'returns the ffprobe command with default analyzeduration and probesize values' do
-        movie = FFMPEG::Movie.new("#{fixture_path}/movies/awesome movie.mov")
+        allow(File).to receive(:exist?).with("").and_return(true)
+        movie = FFMPEG::Movie.new("")
         expect(movie.ffprobe_command).to eq("#{FFMPEG.ffprobe_binary} -hide_banner -analyzeduration 15000000 -probesize 15000000")
       end
 
@@ -421,14 +426,14 @@ module FFMPEG
         analyzeduration = 5000000
         probesize = 1000000
 
-        movie = FFMPEG::Movie.new("#{fixture_path}/movies/awesome movie.mov", analyzeduration = analyzeduration, probesize = probesize)
+        allow(File).to receive(:exist?).with("").and_return(true)
+        movie = FFMPEG::Movie.new("", analyzeduration = analyzeduration, probesize = probesize)
         expect(movie.ffprobe_command).to eq("#{FFMPEG.ffprobe_binary} -hide_banner -analyzeduration #{analyzeduration} -probesize #{probesize}")
       end
-    end
 
-    describe '#ffmpeg_command' do
       it 'returns the ffmpeg command with default analyzeduration and probesize values' do
-        movie = FFMPEG::Movie.new("#{fixture_path}/movies/awesome movie.mov")
+        allow(File).to receive(:exist?).with("").and_return(true)
+        movie = FFMPEG::Movie.new("")
         expect(movie.ffmpeg_command).to eq("#{FFMPEG.ffmpeg_binary} -hide_banner -analyzeduration 15000000 -probesize 15000000")
       end
 
@@ -436,7 +441,8 @@ module FFMPEG
         analyzeduration = 5000000
         probesize = 1000000
 
-        movie = FFMPEG::Movie.new("#{fixture_path}/movies/awesome movie.mov", analyzeduration = analyzeduration, probesize = probesize)
+        allow(File).to receive(:exist?).with("").and_return(true)
+        movie = FFMPEG::Movie.new("", analyzeduration = analyzeduration, probesize = probesize)
         expect(movie.ffmpeg_command).to eq("#{FFMPEG.ffmpeg_binary} -hide_banner -analyzeduration #{analyzeduration} -probesize #{probesize}")
       end
     end
