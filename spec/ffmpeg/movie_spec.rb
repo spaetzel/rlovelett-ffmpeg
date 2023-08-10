@@ -411,13 +411,9 @@ module FFMPEG
       end
     end
 
-    def mock_file_io(movie, path)
-
-    end
-
     describe 'ffprobe & ffmpeg command' do
       it 'returns the ffprobe command with default analyzeduration and probesize values' do
-        allow(File).to receive(:exist?).with("").and_return(true)
+        allow(File).to receive(:exist?).and_return(true)
         movie = FFMPEG::Movie.new("")
         expect(movie.ffprobe_command).to eq("#{FFMPEG.ffprobe_binary} -hide_banner -analyzeduration 15000000 -probesize 15000000")
       end
@@ -426,13 +422,13 @@ module FFMPEG
         analyzeduration = 5000000
         probesize = 1000000
 
-        allow(File).to receive(:exist?).with("").and_return(true)
+        allow(File).to receive(:exist?).and_return(true)
         movie = FFMPEG::Movie.new("", analyzeduration = analyzeduration, probesize = probesize)
         expect(movie.ffprobe_command).to eq("#{FFMPEG.ffprobe_binary} -hide_banner -analyzeduration #{analyzeduration} -probesize #{probesize}")
       end
 
       it 'returns the ffmpeg command with default analyzeduration and probesize values' do
-        allow(File).to receive(:exist?).with("").and_return(true)
+        allow(File).to receive(:exist?).and_return(true)
         movie = FFMPEG::Movie.new("")
         expect(movie.ffmpeg_command).to eq("#{FFMPEG.ffmpeg_binary} -hide_banner -analyzeduration 15000000 -probesize 15000000")
       end
@@ -441,7 +437,7 @@ module FFMPEG
         analyzeduration = 5000000
         probesize = 1000000
 
-        allow(File).to receive(:exist?).with("").and_return(true)
+        allow(File).to receive(:exist?).and_return(true)
         movie = FFMPEG::Movie.new("", analyzeduration = analyzeduration, probesize = probesize)
         expect(movie.ffmpeg_command).to eq("#{FFMPEG.ffmpeg_binary} -hide_banner -analyzeduration #{analyzeduration} -probesize #{probesize}")
       end
