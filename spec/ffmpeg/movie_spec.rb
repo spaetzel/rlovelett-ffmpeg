@@ -419,8 +419,8 @@ module FFMPEG
       end
 
       it 'returns the ffprobe command with custom analyzeduration and probesize values' do
-        analyzeduration = 5000000
-        probesize = 1000000
+        analyze_duration = 5000000
+        probe_size = 1000000
 
         allow(File).to receive(:exist?).and_return(true)
         movie = FFMPEG::Movie.new("", analyzeduration = analyzeduration, probesize = probesize)
@@ -440,6 +440,16 @@ module FFMPEG
         allow(File).to receive(:exist?).and_return(true)
         movie = FFMPEG::Movie.new("", analyzeduration = analyzeduration, probesize = probesize)
         expect(movie.ffmpeg_command).to eq("#{FFMPEG.ffmpeg_binary} -hide_banner -analyzeduration #{analyzeduration} -probesize #{probesize}")
+      end
+
+      it 'it allows getting the analyzeduration and probesize as an attr' do
+        analyzeduration = 2000000
+        probesize = 3000000
+
+        allow(File).to receive(:exist?).and_return(true)
+        movie = FFMPEG::Movie.new("", analyzeduration = analyzeduration, probesize = probesize)
+        expect(movie.analyzeduration).to eq(analyzeduration)
+        expect(movie.probesize).to eq(probesize)
       end
     end
 
