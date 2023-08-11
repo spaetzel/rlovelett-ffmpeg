@@ -4,7 +4,7 @@ require 'posix-spawn'
 
 module FFMPEG
   class Movie
-    attr_reader :path, :duration, :time, :bitrate, :rotation, :creation_time
+    attr_reader :path, :duration, :time, :bitrate, :rotation, :creation_time, :analyzeduration, :probesize
     attr_reader :video_stream, :video_codec, :video_bitrate, :colorspace, :width, :height, :sar, :dar, :frame_rate, :has_b_frames, :video_profile, :video_level
     attr_reader :audio_streams, :audio_stream, :audio_codec, :audio_bitrate, :audio_sample_rate, :audio_channels, :audio_tags
     attr_reader :color_primaries, :avframe_color_space, :color_transfer
@@ -13,21 +13,23 @@ module FFMPEG
 
     UNSUPPORTED_CODEC_PATTERN = /^Unsupported codec with id (\d+) for input stream (\d+)$/
 
-    def initialize(path)
+    def initialize(path, analyzeduration = 15000000, probesize=15000000 )
       unless File.exist?(path) || path =~ URI::regexp(["http", "https"])
         raise Errno::ENOENT, "the file '#{path}' does not exist"
       end
 
       @path = path
+      @analyzeduration = analyzeduration;
+      @probesize = probesize;
 
       if @path.end_with?('.m3u8')
-        optional_arguements = '-allowed_extensions ALL'
+        optional_arguments = '-allowed_extensions ALL'
       else
-        optional_arguements = ''
+        optional_arguments = ''
       end
 
       # ffmpeg will output to stderr
-      command = "#{FFMPEG.ffprobe_binary} -hide_banner -analyzeduration 10000000 -probesize 10000000 #{optional_arguements} -i #{Shellwords.escape(path)} -print_format json -show_format -show_streams -show_error"
+      command = "#{ffprobe_command} #{optional_arguments} -i #{Shellwords.escape(path)} -print_format json -show_format -show_streams -show_error"
       spawn = POSIX::Spawn::Child.new(command)
 
       std_output = spawn.out
@@ -131,7 +133,7 @@ module FFMPEG
       std_err_codec_failure = std_error.include?("could not find codec parameters")
       FFMPEG.logger.error(std_error)
       if nil_or_unsupported_stream or metadata_error or std_err_codec_failure
-        @invalid = true 
+        @invalid = true
         FFMPEG.logger.error(
           nil_or_unsupported_stream: nil_or_unsupported_stream,
           metadata_error: metadata_error,
@@ -139,6 +141,18 @@ module FFMPEG
           std_error: std_error
         )
       end
+    end
+
+    def ffprobe_command
+      ff_command(FFMPEG.ffprobe_binary)
+    end
+
+    def ffmpeg_command
+      ff_command(FFMPEG.ffmpeg_binary)
+    end
+
+    def ff_command(binary)
+      "#{binary} -hide_banner -analyzeduration #{@analyzeduration} -probesize #{@probesize}"
     end
 
     def unsupported_streams(std_error)

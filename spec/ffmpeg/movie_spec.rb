@@ -2,6 +2,7 @@ require 'spec_helper.rb'
 
 module FFMPEG
   describe Movie do
+
     describe "initializing" do
       context "given a non existing file" do
         it "should throw ArgumentError" do
@@ -407,6 +408,48 @@ module FFMPEG
         expect(transcoder_double).to receive(:run)
 
         movie.transcode("#{tmp_path}/awesome.flv", {custom: "-vcodec libx264"}, {preserve_aspect_ratio: :width})
+      end
+    end
+
+    describe 'ffprobe & ffmpeg command' do
+      it 'returns the ffprobe command with default analyzeduration and probesize values' do
+        allow(File).to receive(:exist?).and_return(true)
+        movie = FFMPEG::Movie.new("")
+        expect(movie.ffprobe_command).to eq("#{FFMPEG.ffprobe_binary} -hide_banner -analyzeduration 15000000 -probesize 15000000")
+      end
+
+      it 'returns the ffprobe command with custom analyzeduration and probesize values' do
+        analyze_duration = 5000000
+        probe_size = 1000000
+
+        allow(File).to receive(:exist?).and_return(true)
+        movie = FFMPEG::Movie.new("", analyzeduration = analyzeduration, probesize = probesize)
+        expect(movie.ffprobe_command).to eq("#{FFMPEG.ffprobe_binary} -hide_banner -analyzeduration #{analyzeduration} -probesize #{probesize}")
+      end
+
+      it 'returns the ffmpeg command with default analyzeduration and probesize values' do
+        allow(File).to receive(:exist?).and_return(true)
+        movie = FFMPEG::Movie.new("")
+        expect(movie.ffmpeg_command).to eq("#{FFMPEG.ffmpeg_binary} -hide_banner -analyzeduration 15000000 -probesize 15000000")
+      end
+
+      it 'returns the ffmpeg command with custom analyzeduration and probesize values' do
+        analyzeduration = 5000000
+        probesize = 1000000
+
+        allow(File).to receive(:exist?).and_return(true)
+        movie = FFMPEG::Movie.new("", analyzeduration = analyzeduration, probesize = probesize)
+        expect(movie.ffmpeg_command).to eq("#{FFMPEG.ffmpeg_binary} -hide_banner -analyzeduration #{analyzeduration} -probesize #{probesize}")
+      end
+
+      it 'allows getting the analyzeduration and probesize as an attr' do
+        analyzeduration = 2000000
+        probesize = 3000000
+
+        allow(File).to receive(:exist?).and_return(true)
+        movie = FFMPEG::Movie.new("", analyzeduration = analyzeduration, probesize = probesize)
+        expect(movie.analyzeduration).to eq(analyzeduration)
+        expect(movie.probesize).to eq(probesize)
       end
     end
 
