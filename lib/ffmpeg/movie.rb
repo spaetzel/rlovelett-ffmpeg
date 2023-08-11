@@ -143,11 +143,11 @@ module FFMPEG
       end
     end
 
-    def ffprobe_command()
+    def ffprobe_command
       ff_command(FFMPEG.ffprobe_binary)
     end
 
-    def ffmpeg_command()
+    def ffmpeg_command
       ff_command(FFMPEG.ffmpeg_binary)
     end
 
