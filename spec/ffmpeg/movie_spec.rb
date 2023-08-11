@@ -442,7 +442,7 @@ module FFMPEG
         expect(movie.ffmpeg_command).to eq("#{FFMPEG.ffmpeg_binary} -hide_banner -analyzeduration #{analyzeduration} -probesize #{probesize}")
       end
 
-      it 'it allows getting the analyzeduration and probesize as an attr' do
+      it 'allows getting the analyzeduration and probesize as an attr' do
         analyzeduration = 2000000
         probesize = 3000000
 
