@@ -18,15 +18,16 @@ module FFMPEG
 
       # codecs should go before the presets so that the files will be matched successfully
       # all other parameters go after so that we can override whatever is in the preset
-      input   = params.select { |p| p =~ /^\-i / }
+      inputs   = params.select { |p| p =~ /^\-i / }
       seek    = params.select {|p| p =~ /\-ss/ }
       codecs  = params.select { |p| p =~ /codec/ }
       presets = params.select { |p| p =~ /\-.pre/ }
-      other   = params - codecs - presets - input - seek
-      params  = prefix_params + seek + input + codecs + presets + other
+      other   = params - codecs - presets - inputs - seek
+      params  = prefix_params + seek + inputs + codecs + presets + other
 
       params_string = params.join(" ")
       params_string << " #{convert_aspect(calculate_aspect)}" if calculate_aspect?
+
       params_string
     end
 
@@ -166,8 +167,13 @@ module FFMPEG
       value
     end
 
+    def convert_inputs(values)
+      "-i #{values.join('-i ')}"
+    end
+
+    # Deprecated, but accounting for "old" syntax
     def convert_input(value)
-      "-i #{Shellwords.escape(value)}"
+      convert_inputs([value])
     end
 
     def k_format(value)

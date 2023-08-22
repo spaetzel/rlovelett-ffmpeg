@@ -19,11 +19,11 @@ module FFMPEG
 
       if options.is_a?(String)
         prefix_options = convert_prefix_options_to_string(transcoder_prefix_options)
-        @raw_options = "#{prefix_options}-i #{Shellwords.escape(@movie.path)} #{options}"
+        @raw_options = "#{prefix_options}-i #{@movie.path} #{options}"
       elsif options.is_a?(EncodingOptions)
-        @raw_options = options.merge(:input => @movie.path) unless options.include? :input
+        @raw_options = options.merge(:inputs => [@movie.path]) unless options.include? :inputs
       elsif options.is_a?(Hash)
-        @raw_options = EncodingOptions.new(options.merge(:input => @movie.path), transcoder_prefix_options)
+        @raw_options = EncodingOptions.new(options.merge(:inputs => [@movie.path]), transcoder_prefix_options)
       else
         raise ArgumentError, "Unknown options format '#{options.class}', should be either EncodingOptions, Hash or String."
       end
@@ -96,7 +96,7 @@ module FFMPEG
     def validate_output_file(&block)
       if encoding_succeeded?
         yield(1.0) if block_given?
-        FFMPEG.logger.info "Transcoding of #{@movie.path} to #{@output_file} succeeded\n"
+        FFMPEG.logger.info "Transcoding of #{@movie.paths.join(', ')} to #{@output_file} succeeded\n"
       else
         errors = "Errors: #{@errors.join(", ")}. "
         FFMPEG.logger.error "Failed encoding...\n#{@command}\n\n#{@output}\n#{errors}\n"

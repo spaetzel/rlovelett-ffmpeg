@@ -4,7 +4,7 @@ require 'posix-spawn'
 
 module FFMPEG
   class Movie
-    attr_reader :path, :duration, :time, :bitrate, :rotation, :creation_time, :analyzeduration, :probesize
+    attr_reader :path, :paths, :duration, :time, :bitrate, :rotation, :creation_time, :analyzeduration, :probesize
     attr_reader :video_stream, :video_codec, :video_bitrate, :colorspace, :width, :height, :sar, :dar, :frame_rate, :has_b_frames, :video_profile, :video_level
     attr_reader :audio_streams, :audio_stream, :audio_codec, :audio_bitrate, :audio_sample_rate, :audio_channels, :audio_tags
     attr_reader :color_primaries, :avframe_color_space, :color_transfer
@@ -13,24 +13,32 @@ module FFMPEG
 
     UNSUPPORTED_CODEC_PATTERN = /^Unsupported codec with id (\d+) for input stream (\d+)$/
 
-    def initialize(path, analyzeduration = 15000000, probesize=15000000 )
-      unless File.exist?(path) || path =~ URI::regexp(["http", "https"])
-        raise Errno::ENOENT, "the file '#{path}' does not exist"
+    def initialize(paths, analyzeduration = 15000000, probesize=15000000 )
+      paths = [paths] unless paths.is_a? Array
+
+      inputs = []
+      paths.each do |path|
+        raise Errno::ENOENT, "the file '#{path}' does not exist" unless File.exist?(path) || path =~ URI::regexp(["http", "https"])
+        inputs.push Shellwords.escape(path)
       end
 
-      @path = path
+      @paths = inputs
       @analyzeduration = analyzeduration;
       @probesize = probesize;
 
-      if @path.end_with?('.m3u8')
+      if @paths.any? {|path| path.end_with?('.m3u8') }
         optional_arguments = '-allowed_extensions ALL'
       else
         optional_arguments = ''
       end
 
       # ffmpeg will output to stderr
-      command = "#{ffprobe_command} #{optional_arguments} -i #{Shellwords.escape(path)} -print_format json -show_format -show_streams -show_error"
+      # This will only fetch the metadata for the first video provided
+      command = "#{ffprobe_command} #{optional_arguments} -i #{@paths.first} -print_format json -show_format -show_streams -show_error"
       spawn = POSIX::Spawn::Child.new(command)
+
+      # sources = (inputs.length > 1) ? "-f concat -i #{escaped_paths.join " -i "})" : "-i #{escaped_paths.first}"
+      # spawn = POSIX::Spawn::Child.new(command)
 
       std_output = spawn.out
       std_error = spawn.err
@@ -186,7 +194,7 @@ module FFMPEG
       if @size
         @size
       else
-        File.size(@path)
+        File.size(path)
       end
     end
 
@@ -202,6 +210,10 @@ module FFMPEG
                                  else
                                    'unknown'
                                end
+    end
+
+    def path
+      @paths.first
     end
 
     def portrait?
