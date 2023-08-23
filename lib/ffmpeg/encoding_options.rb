@@ -18,10 +18,10 @@ module FFMPEG
 
       # codecs should go before the presets so that the files will be matched successfully
       # all other parameters go after so that we can override whatever is in the preset
-      inputs   = params.select { |p| p =~ /\-i / }
-      seek    = params.select {|p| p =~ /\-ss/ }
-      codecs  = params.select { |p| p =~ /codec/ }
-      presets = params.select { |p| p =~ /\-.pre/ }
+      inputs                    = params.select { |p| p =~ /\-i / }
+      seek                      = params.select {|p| p =~ /\-ss/ }
+      codecs                    = params.select { |p| p =~ /codec/ }
+      presets                   = params.select { |p| p =~ /\-.pre/ }
       contains_complex_filter   = params.any? { |p| p =~ /\-filter_complex / }
 
       other   = params - codecs - presets - inputs - seek
