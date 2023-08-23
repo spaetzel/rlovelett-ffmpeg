@@ -408,8 +408,20 @@ module FFMPEG
     end
 
     describe "transcode" do
-      it "should run the transcoder" do
+      it "should run the transcoder for a single input" do
         movie = Movie.new("#{fixture_path}/movies/awesome movie.mov")
+
+        transcoder_double = double(Transcoder)
+        expect(Transcoder).to receive(:new).
+          with(movie, "#{tmp_path}/awesome.flv", {custom: "-vcodec libx264"}, {preserve_aspect_ratio: :width}, {}).
+          and_return(transcoder_double)
+        expect(transcoder_double).to receive(:run)
+
+        movie.transcode("#{tmp_path}/awesome.flv", {custom: "-vcodec libx264"}, {preserve_aspect_ratio: :width})
+      end
+
+      it "should run the transcoder for multiple inputs" do
+        movie = Movie.new(["#{fixture_path}/movies/awesome movie.mov", "#{fixture_path}/movies/awesome_widescreen.mov"])
 
         transcoder_double = double(Transcoder)
         expect(Transcoder).to receive(:new).
@@ -433,7 +445,7 @@ module FFMPEG
         probe_size = 1000000
 
         allow(File).to receive(:exist?).and_return(true)
-        movie = FFMPEG::Movie.new("", analyzeduration = analyzeduration, probesize = probesize)
+        movie = FFMPEG::Movie.new("", analyzeduration = analyze_duration, probesize = probe_size)
         expect(movie.ffprobe_command).to eq("#{FFMPEG.ffprobe_binary} -hide_banner -analyzeduration #{analyzeduration} -probesize #{probesize}")
       end
 

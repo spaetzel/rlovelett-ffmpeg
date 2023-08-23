@@ -3,6 +3,8 @@ require 'spec_helper.rb'
 module FFMPEG
   describe Transcoder do
     let(:movie) { Movie.new("#{fixture_path}/movies/awesome movie.mov") }
+    let(:movie_with_two_inputs) { Movie.new(["#{fixture_path}/movies/awesome movie.mov", "#{fixture_path}/movies/awesome_widescreen.mov"]) }
+    let(:movie_with_three_inputs) { Movie.new(["#{fixture_path}/movies/awesome movie.mov", "#{fixture_path}/movies/awesome_widescreen.mov", "#{fixture_path}/movies/awesome'movie.mov"]) }
 
     describe "initialization" do
       let(:output_path) { "#{tmp_path}/awesome.flv" }
@@ -221,6 +223,30 @@ module FFMPEG
 
           expect(encoded.duration).to be >= 1.8
           expect(encoded.duration).to be <= 2.2
+        end
+
+        context 'multiple inputs' do
+          it "should encode with the duration matching the combined length when filter_complex is overridden" do
+            advanced_encoding_options = "-filter_complex \"[0][1]scale2ref[canvas][vid1];[canvas][2]scale2ref='max(iw,main_w)':'max(ih,main_h)'[canvas][vid2];[canvas]split=2[canvas1][canvas2];[canvas1][vid1]overlay=x='(W-w)/2':y='(H-h)/2':shortest=1[vid1];[canvas2][vid2]overlay=x='(W-w)/2':y='(H-h)/2':shortest=1[vid2];[vid1][vid2]concat=n=2:v=1,setsar=1\""
+            encoded = Transcoder.new(movie_with_two_inputs, "#{tmp_path}/multi_input.mp4", custom: advanced_encoding_options).run
+
+            expect(encoded.duration).to be >= 14.4
+            expect(encoded.duration).to be <= 15.2
+          end
+
+          it "should encode with the duration matching the combined length when filter_complex is not supplied with 2 videos" do
+            encoded = Transcoder.new(movie_with_two_inputs, "#{tmp_path}/multi_input.mp4").run
+
+            expect(encoded.duration).to be >= 14.4
+            expect(encoded.duration).to be <= 15.2
+          end
+
+          it "should encode with the duration matching the combined length when filter_complex is not supplied with 3 videos" do
+            encoded = Transcoder.new(movie_with_three_inputs, "#{tmp_path}/multi_input.mp4").run
+
+            expect(encoded.duration).to be >= 21.6
+            expect(encoded.duration).to be <= 22.7
+          end
         end
 
         context "with screenshot option" do

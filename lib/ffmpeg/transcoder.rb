@@ -19,11 +19,11 @@ module FFMPEG
 
       if options.is_a?(String)
         prefix_options = convert_prefix_options_to_string(transcoder_prefix_options)
-        @raw_options = "#{prefix_options}-i #{@movie.path} #{options}"
+        @raw_options = "#{prefix_options} #{EncodingOptions.new.send(:convert_inputs, @movie.paths)} #{options}"
       elsif options.is_a?(EncodingOptions)
-        @raw_options = options.merge(:inputs => [@movie.path]) unless options.include? :inputs
+        @raw_options = options.merge(:inputs => @movie.paths) unless options.include? :inputs
       elsif options.is_a?(Hash)
-        @raw_options = EncodingOptions.new(options.merge(:inputs => [@movie.path]), transcoder_prefix_options)
+        @raw_options = EncodingOptions.new(options.merge(:inputs => @movie.paths), transcoder_prefix_options)
       else
         raise ArgumentError, "Unknown options format '#{options.class}', should be either EncodingOptions, Hash or String."
       end
