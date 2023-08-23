@@ -9,11 +9,11 @@ module FFMPEG
 
     def to_s
       params = collect do |key, value|
-        send("convert_#{key}", value) if value && supports_option?(key)
+        attempt_self_call(key, value)
       end
 
       prefix_params = @prefix_options&.map do |key, value|
-        send("convert_#{key}", value) if value && supports_option?(key)
+        attempt_self_call(key, value)
       end
 
       # codecs should go before the presets so that the files will be matched successfully
@@ -65,8 +65,28 @@ module FFMPEG
       self[:resolution].split("x").last.to_i rescue nil
     end
 
+    def attempt_self_call(key, value)
+      if value
+        if supports_option_public?(key)
+          public_send("convert_#{key}", value)
+        elsif supports_option_private?(key)
+          send("convert_#{key}", value)
+        end
+      end
+    end
+
+    def convert_inputs(values)
+      multi_input_concat = values.size > 1 ? '-f lavfi -i color ' : ''
+      "#{multi_input_concat}-i #{values.join(' -i ')}"
+    end
+
     private
-    def supports_option?(option)
+    def supports_option_public?(option)
+      option = RUBY_VERSION < "1.9" ? "convert_#{option}" : "convert_#{option}".to_sym
+      public_methods.include?(option)
+    end
+
+    def supports_option_private?(option)
       option = RUBY_VERSION < "1.9" ? "convert_#{option}" : "convert_#{option}".to_sym
       private_methods.include?(option)
     end
@@ -191,11 +211,6 @@ module FFMPEG
 
     def convert_custom(value)
       value
-    end
-
-    def convert_inputs(values)
-      multi_input_concat = values.size > 1 ? '-f lavfi -i color ' : ''
-      "#{multi_input_concat}-i #{values.join(' -i ')}"
     end
 
     # Deprecated, but accounting for "old" syntax

@@ -19,7 +19,7 @@ module FFMPEG
 
       if options.is_a?(String)
         prefix_options = convert_prefix_options_to_string(transcoder_prefix_options)
-        @raw_options = "#{prefix_options} #{EncodingOptions.new.send(:convert_inputs, @movie.paths)} #{options}"
+        @raw_options = "#{prefix_options} #{EncodingOptions.new.convert_inputs(@movie.paths)} #{options}"
       elsif options.is_a?(EncodingOptions)
         @raw_options = options.merge(:inputs => @movie.paths) unless options.include? :inputs
       elsif options.is_a?(Hash)
