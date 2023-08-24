@@ -26,7 +26,7 @@ module FFMPEG
             FileUtils.mkdir_p(dirname)
           end
 
-          interim_path = "#{File.dirname(path)}/interim/#{File.basename(path)}"
+          interim_path = "#{File.dirname(path)}/interim/#{File.basename(path, File.extname(path))}.mp4"
           @movie.interim_paths << interim_path
         end
       else
@@ -82,7 +82,7 @@ module FFMPEG
 
       # Convert the individual videos into a common format, using the first video in as the "resolution"
       @movie.paths.each_with_index do |path, index|
-        command = "#{@movie.ffmpeg_command} -y -i #{path} -r #{output_frame_rate} -filter_complex \"[0:v]scale=#{@movie.height}:#{@movie.width},setsar=1[Scaled]\" -map \"[Scaled]\" -map \"0:a\" #{@movie.interim_paths[index]}"
+        command = "#{@movie.ffmpeg_command} -y -i #{path} -movflags faststart -r #{output_frame_rate} -filter_complex \"[0:v]scale=#{@movie.height}:#{@movie.width},setsar=1[Scaled]\" -map \"[Scaled]\" -map \"0:a\" #{@movie.interim_paths[index]}"
 
         FFMPEG.logger.info("Running transcoding...\n#{@command}\n")
         output = ""
