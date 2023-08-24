@@ -84,7 +84,7 @@ module FFMPEG
       @movie.paths.each_with_index do |path, index|
         command = "#{@movie.ffmpeg_command} -y -i #{path} -movflags faststart -r #{output_frame_rate} -filter_complex \"[0:v]scale=#{@movie.height}:#{@movie.width},setsar=1[Scaled]\" -map \"[Scaled]\" -map \"0:a\" #{@movie.interim_paths[index]}"
 
-        FFMPEG.logger.info("Running transcoding...\n#{@command}\n")
+        FFMPEG.logger.info("Running transcoding...\n#{command}\n")
         output = ""
 
         Open3.popen3(command) do |stdin, stdout, stderr, wait_thr|
