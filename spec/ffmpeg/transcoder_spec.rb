@@ -226,8 +226,13 @@ module FFMPEG
         end
 
         context 'multiple inputs' do
+          after :each do
+            FileUtils.rm_rf("#{fixture_path}/movies/interim/")
+            FileUtils.rm_rf("#{tmp_path}/multi_input.mp4")
+          end
+
           it "should encode with the duration matching the combined length when filter_complex is overridden" do
-            advanced_encoding_options = "-filter_complex \"[0][1]scale2ref[canvas][vid1];[canvas][2]scale2ref='max(iw,main_w)':'max(ih,main_h)'[canvas][vid2];[canvas]split=2[canvas1][canvas2];[canvas1][vid1]overlay=x='(W-w)/2':y='(H-h)/2':shortest=1[vid1];[canvas2][vid2]overlay=x='(W-w)/2':y='(H-h)/2':shortest=1[vid2];[vid1][vid2]concat=n=2:v=1,setsar=1\""
+            advanced_encoding_options = "-filter_complex \"[0:v]scale,crop,transpose,setpts=PTS-STARTPTS[v0];[1:v]scale,crop,transpose,setpts=PTS-STARTPTS[v1];[v0][0:a][v1][1:a]concat=n=2:v=1:a=1[v][a]\" -map \"[v]\" -map \"[a]\""
             encoded = Transcoder.new(movie_with_two_inputs, "#{tmp_path}/multi_input.mp4", custom: advanced_encoding_options).run
 
             expect(encoded.duration).to be >= 14.4
