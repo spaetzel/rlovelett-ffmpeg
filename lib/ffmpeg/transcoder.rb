@@ -80,9 +80,12 @@ module FFMPEG
       output_frame_rate = [@raw_options[:frame_rate] || @movie.frame_rate, 30].max
       output_frame_rate = 30 if output_frame_rate > 300
 
+      # Add a subset of the full encode options
+      pre_encode_options = @raw_options.is_a?(EncodingOptions) ? @raw_options.to_s_minimal : @raw_options
+
       # Convert the individual videos into a common format, using the first video in as the "resolution"
       @movie.paths.each_with_index do |path, index|
-        command = "#{@movie.ffmpeg_command} -y -i #{path} -movflags faststart -r #{output_frame_rate} -filter_complex \"[0:v]scale=#{@movie.height}:#{@movie.width},setsar=1[Scaled]\" -map \"[Scaled]\" -map \"0:a\" #{@movie.interim_paths[index]}"
+        command = "#{@movie.ffmpeg_command} -y -i #{path} -movflags faststart #{pre_encode_options} -r #{output_frame_rate} -filter_complex \"[0:v]scale=#{@movie.height}:#{@movie.width},setsar=1[Scaled]\" -map \"[Scaled]\" -map \"0:a\" #{@movie.interim_paths[index]}"
 
         FFMPEG.logger.info("Running transcoding...\n#{command}\n")
         output = ""

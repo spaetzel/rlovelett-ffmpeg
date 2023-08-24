@@ -39,6 +39,28 @@ module FFMPEG
       params_string
     end
 
+    def to_s_minimal
+      params = collect do |key, value|
+        attempt_self_call(key, value)
+      end
+
+      # codecs should go before the presets so that the files will be matched successfully
+      # all other parameters go after so that we can override whatever is in the preset
+      inputs                    = params.select { |p| p =~ /\-i / }
+      seek                      = params.select {|p| p =~ /\-ss/ }
+      codecs                    = params.select { |p| p =~ /codec/ }
+      presets                   = params.select { |p| p =~ /\-.pre/ }
+      complex_filter            = params.select { |p| p =~ /\-filter_complex / }
+
+      other   = params - codecs - presets - inputs - seek - complex_filter
+      params  = codecs + presets + other
+
+      params_string = params.join(" ")
+      params_string << " #{convert_aspect(calculate_aspect)}" if calculate_aspect?
+
+      params_string
+    end
+
     # def default_multi_input_complex_filter(num_inputs)
     #   initial_input_forming = '[0][1]scale2ref[canvas][vid1];'
     #   canvas_splitting = "[canvas]split=#{num_inputs}"
