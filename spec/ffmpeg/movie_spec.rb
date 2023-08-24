@@ -240,18 +240,36 @@ module FFMPEG
           @movie = Movie.new("#{fixture_path}/movies/awesome movie.mov")
         end
 
-        it "should remember the movie path" do
-          expect(@movie.path).to eq("#{fixture_path}/movies/awesome\\ movie.mov")
-        end
+        context "escaped paths" do
+          it "should remember the movie path" do
+            expect(@movie.path).to eq("#{fixture_path}/movies/awesome\\ movie.mov")
+          end
 
-        it "should return first path if multiple" do
-          @movie = Movie.new(["#{fixture_path}/movies/awesome movie.mov", "#{fixture_path}/movies/awesome_widescreen.mov"])
-          expect(@movie.path).to eq("#{fixture_path}/movies/awesome\\ movie.mov")
-        end
+          it "should return first path if multiple" do
+            @movie = Movie.new(["#{fixture_path}/movies/awesome movie.mov", "#{fixture_path}/movies/awesome_widescreen.mov"])
+            expect(@movie.path).to eq("#{fixture_path}/movies/awesome\\ movie.mov")
+          end
 
-        it "should return all paths if multiple" do
-          @movie = Movie.new(["#{fixture_path}/movies/awesome movie.mov", "#{fixture_path}/movies/awesome_widescreen.mov"])
-          expect(@movie.paths).to eq(["#{fixture_path}/movies/awesome\\ movie.mov", "#{fixture_path}/movies/awesome_widescreen.mov"])
+          it "should return all paths if multiple" do
+            @movie = Movie.new(["#{fixture_path}/movies/awesome movie.mov", "#{fixture_path}/movies/awesome_widescreen.mov"])
+            expect(@movie.paths).to eq(["#{fixture_path}/movies/awesome\\ movie.mov", "#{fixture_path}/movies/awesome_widescreen.mov"])
+          end
+        end
+        context "unescaped paths" do
+
+          it "should remember the movie path" do
+            expect(@movie.unescaped_path).to eq("#{fixture_path}/movies/awesome movie.mov")
+          end
+
+          it "should return first path if multiple" do
+            @movie = Movie.new(["#{fixture_path}/movies/awesome movie.mov", "#{fixture_path}/movies/awesome_widescreen.mov"])
+            expect(@movie.unescaped_path).to eq("#{fixture_path}/movies/awesome movie.mov")
+          end
+
+          it "should return all paths if multiple" do
+            @movie = Movie.new(["#{fixture_path}/movies/awesome movie.mov", "#{fixture_path}/movies/awesome_widescreen.mov"])
+            expect(@movie.unescaped_paths).to eq(["#{fixture_path}/movies/awesome movie.mov", "#{fixture_path}/movies/awesome_widescreen.mov"])
+          end
         end
 
         it "should parse duration to number of seconds" do
