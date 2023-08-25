@@ -96,6 +96,7 @@ module FFMPEG
             next_line = Proc.new do |line|
               fix_encoding(line)
               output << line
+              # TODO: Update this to actually yield progress updates relative to the overall output
               # if line.include?("time=")
               #   if line =~ /time=(\d+):(\d+):(\d+.\d+)/ # ffmpeg 0.8 and above style
               #     time = ($1.to_i * 3600) + ($2.to_i * 60) + $3.to_f
@@ -121,7 +122,6 @@ module FFMPEG
       end
     end
 
-    # frame= 4855 fps= 46 q=31.0 size=   45306kB time=00:02:42.28 bitrate=2287.0kbits/
     def transcode_movie
       pre_encode_if_necessary
 

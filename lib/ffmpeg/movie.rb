@@ -39,9 +39,6 @@ module FFMPEG
       command = "#{ffprobe_command} #{optional_arguments} -i #{@paths.first} -print_format json -show_format -show_streams -show_error"
       spawn = POSIX::Spawn::Child.new(command)
 
-      # sources = (inputs.length > 1) ? "-f concat -i #{escaped_paths.join " -i "})" : "-i #{escaped_paths.first}"
-      # spawn = POSIX::Spawn::Child.new(command)
-
       std_output = spawn.out
       std_error = spawn.err
 

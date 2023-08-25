@@ -61,24 +61,6 @@ module FFMPEG
       params_string
     end
 
-    # def default_multi_input_complex_filter(num_inputs)
-    #   initial_input_forming = '[0][1]scale2ref[canvas][vid1];'
-    #   canvas_splitting = "[canvas]split=#{num_inputs}"
-    #   canvas_creations = ''
-    #   final_grouping = ''
-
-    #   num_inputs.times do |index|
-    #     offset_index = index + 1
-    #     initial_input_forming += "[canvas][#{offset_index}]scale2ref='max(iw,main_w)':'max(ih,main_h)'[canvas][vid#{offset_index}];" if index > 0 #skip initial index since it has different formatting
-    #     canvas_splitting += "[canvas#{offset_index}]"
-    #     canvas_creations += "[canvas#{offset_index}][vid#{offset_index}]overlay=x='(W-w)/2':y='(H-h)/2':shortest=1[vid#{offset_index}];"
-    #     final_grouping += "[vid#{offset_index}]"
-    #   end
-
-    #   final_grouping += "concat=n=#{num_inputs}:v=1,setsar=1"
-    #   return "#{initial_input_forming}#{canvas_splitting};#{canvas_creations}#{final_grouping}"
-    # end
-
     def default_multi_input_complex_filter(num_inputs)
       input_forming = ''
       final_grouping = ''
