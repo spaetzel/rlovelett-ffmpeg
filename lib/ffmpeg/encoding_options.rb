@@ -84,7 +84,7 @@ module FFMPEG
       final_grouping = ''
 
       num_inputs.times do |index|
-        input_forming += "[#{index}:v]scale,crop,transpose,setpts=PTS-STARTPTS[v#{index}];"
+        input_forming += "[#{index}:v]setpts=PTS-STARTPTS[v#{index}];"
         # TODO support audio-less videos by checking if any streams exist
         final_grouping += "[v#{index}][#{index}:a]"
       end
