@@ -7,6 +7,7 @@ module FFMPEG
       merge!(options)
     end
 
+    # Returns the full subset of options any time a string is requested
     def to_s
       params = collect do |key, value|
         attempt_self_call(key, value)
@@ -39,6 +40,8 @@ module FFMPEG
       params_string
     end
 
+    # Returns a subset of the full encoding options, and must be requested explicitly
+    # Specifically useful for the pre-encode step which does not want the complex filters
     def to_s_minimal
       params = collect do |key, value|
         attempt_self_call(key, value)
