@@ -240,8 +240,36 @@ module FFMPEG
           @movie = Movie.new("#{fixture_path}/movies/awesome movie.mov")
         end
 
-        it "should remember the movie path" do
-          expect(@movie.path).to eq("#{fixture_path}/movies/awesome movie.mov")
+        context "escaped paths" do
+          it "should remember the movie path" do
+            expect(@movie.path).to eq("#{fixture_path}/movies/awesome\\ movie.mov")
+          end
+
+          it "should return first path if multiple" do
+            @movie = Movie.new(["#{fixture_path}/movies/awesome movie.mov", "#{fixture_path}/movies/awesome_widescreen.mov"])
+            expect(@movie.path).to eq("#{fixture_path}/movies/awesome\\ movie.mov")
+          end
+
+          it "should return all paths if multiple" do
+            @movie = Movie.new(["#{fixture_path}/movies/awesome movie.mov", "#{fixture_path}/movies/awesome_widescreen.mov"])
+            expect(@movie.paths).to eq(["#{fixture_path}/movies/awesome\\ movie.mov", "#{fixture_path}/movies/awesome_widescreen.mov"])
+          end
+        end
+        context "unescaped paths" do
+
+          it "should remember the movie path" do
+            expect(@movie.unescaped_path).to eq("#{fixture_path}/movies/awesome movie.mov")
+          end
+
+          it "should return first path if multiple" do
+            @movie = Movie.new(["#{fixture_path}/movies/awesome movie.mov", "#{fixture_path}/movies/awesome_widescreen.mov"])
+            expect(@movie.unescaped_path).to eq("#{fixture_path}/movies/awesome movie.mov")
+          end
+
+          it "should return all paths if multiple" do
+            @movie = Movie.new(["#{fixture_path}/movies/awesome movie.mov", "#{fixture_path}/movies/awesome_widescreen.mov"])
+            expect(@movie.unescaped_paths).to eq(["#{fixture_path}/movies/awesome movie.mov", "#{fixture_path}/movies/awesome_widescreen.mov"])
+          end
         end
 
         it "should parse duration to number of seconds" do
@@ -398,8 +426,20 @@ module FFMPEG
     end
 
     describe "transcode" do
-      it "should run the transcoder" do
+      it "should run the transcoder for a single input" do
         movie = Movie.new("#{fixture_path}/movies/awesome movie.mov")
+
+        transcoder_double = double(Transcoder)
+        expect(Transcoder).to receive(:new).
+          with(movie, "#{tmp_path}/awesome.flv", {custom: "-vcodec libx264"}, {preserve_aspect_ratio: :width}, {}).
+          and_return(transcoder_double)
+        expect(transcoder_double).to receive(:run)
+
+        movie.transcode("#{tmp_path}/awesome.flv", {custom: "-vcodec libx264"}, {preserve_aspect_ratio: :width})
+      end
+
+      it "should run the transcoder for multiple inputs" do
+        movie = Movie.new(["#{fixture_path}/movies/awesome movie.mov", "#{fixture_path}/movies/awesome_widescreen.mov"])
 
         transcoder_double = double(Transcoder)
         expect(Transcoder).to receive(:new).
@@ -423,7 +463,7 @@ module FFMPEG
         probe_size = 1000000
 
         allow(File).to receive(:exist?).and_return(true)
-        movie = FFMPEG::Movie.new("", analyzeduration = analyzeduration, probesize = probesize)
+        movie = FFMPEG::Movie.new("", analyzeduration = analyze_duration, probesize = probe_size)
         expect(movie.ffprobe_command).to eq("#{FFMPEG.ffprobe_binary} -hide_banner -analyzeduration #{analyzeduration} -probesize #{probesize}")
       end
 

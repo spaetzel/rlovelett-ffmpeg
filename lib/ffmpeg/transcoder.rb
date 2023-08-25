@@ -1,5 +1,6 @@
 require 'open3'
 require 'shellwords'
+require 'fileutils'
 
 module FFMPEG
   class Transcoder
@@ -17,13 +18,28 @@ module FFMPEG
       @movie = movie
       @output_file = output_file
 
+      if @movie.paths.size > 1
+        @movie.paths.each do |path|
+          # Make the interim path folder if it doesn't exist
+          dirname = "#{File.dirname(path)}/interim"
+          unless File.directory?(dirname)
+            FileUtils.mkdir_p(dirname)
+          end
+
+          interim_path = "#{File.dirname(path)}/interim/#{File.basename(path, File.extname(path))}.mp4"
+          @movie.interim_paths << interim_path
+        end
+      else
+        @movie.interim_paths << @movie.paths
+      end
+
       if options.is_a?(String)
         prefix_options = convert_prefix_options_to_string(transcoder_prefix_options)
-        @raw_options = "#{prefix_options}-i #{Shellwords.escape(@movie.path)} #{options}"
+        @raw_options = "#{prefix_options} #{EncodingOptions.new.convert_inputs(@movie.interim_paths)} #{options}"
       elsif options.is_a?(EncodingOptions)
-        @raw_options = options.merge(:input => @movie.path) unless options.include? :input
+        @raw_options = options.merge(:inputs => @movie.interim_paths) unless options.include? :inputs
       elsif options.is_a?(Hash)
-        @raw_options = EncodingOptions.new(options.merge(:input => @movie.path), transcoder_prefix_options)
+        @raw_options = EncodingOptions.new(options.merge(:inputs => @movie.interim_paths), transcoder_prefix_options)
       else
         raise ArgumentError, "Unknown options format '#{options.class}', should be either EncodingOptions, Hash or String."
       end
@@ -56,8 +72,59 @@ module FFMPEG
     end
 
     private
-    # frame= 4855 fps= 46 q=31.0 size=   45306kB time=00:02:42.28 bitrate=2287.0kbits/
+    def pre_encode_if_necessary
+      # Don't pre-encode single inputs since it doesn't need any size conversion
+      return if @movie.interim_paths.size <= 1
+
+      # Set a minimum frame rate
+      output_frame_rate = [@raw_options[:frame_rate] || @movie.frame_rate, 30].max
+      output_frame_rate = 30 if output_frame_rate > 300
+
+      # Add a subset of the full encode options
+      pre_encode_options = @raw_options.is_a?(EncodingOptions) ? @raw_options.to_s_minimal : @raw_options
+
+      # Convert the individual videos into a common format, using the first video in as the "resolution"
+      @movie.paths.each_with_index do |path, index|
+        command = "#{@movie.ffmpeg_command} -y -i #{path} -movflags faststart #{pre_encode_options} -r #{output_frame_rate} -filter_complex \"[0:v]scale=#{@movie.height}:#{@movie.width},setsar=1[Scaled]\" -map \"[Scaled]\" -map \"0:a\" #{@movie.interim_paths[index]}"
+
+        FFMPEG.logger.info("Running transcoding...\n#{command}\n")
+        output = ""
+
+        Open3.popen3(command) do |stdin, stdout, stderr, wait_thr|
+          begin
+            yield(0.0) if block_given?
+            next_line = Proc.new do |line|
+              fix_encoding(line)
+              output << line
+              # TODO: Update this to actually yield progress updates relative to the overall output
+              # if line.include?("time=")
+              #   if line =~ /time=(\d+):(\d+):(\d+.\d+)/ # ffmpeg 0.8 and above style
+              #     time = ($1.to_i * 3600) + ($2.to_i * 60) + $3.to_f
+              #   else # better make sure it wont blow up in case of unexpected output
+              #     time = 0.0
+              #   end
+              #   progress = time / @movie.duration
+              #   yield(progress) if block_given?
+              # end
+            end
+
+            if @@timeout
+              stderr.each_with_timeout(wait_thr.pid, @@timeout, 'size=', &next_line)
+            else
+              stderr.each('size=', &next_line)
+            end
+
+          rescue Timeout::Error
+            FFMPEG.logger.error "Process hung...\n@command\n#{command}\nOutput\n#{output}\n"
+            raise Error, "Process hung. Full output: #{output}"
+          end
+        end
+      end
+    end
+
     def transcode_movie
+      pre_encode_if_necessary
+
       @command = "#{@movie.ffmpeg_command} -y #{@raw_options} #{Shellwords.escape(@output_file)}"
 
       FFMPEG.logger.info("Running transcoding...\n#{@command}\n")
@@ -86,7 +153,7 @@ module FFMPEG
             stderr.each('size=', &next_line)
           end
 
-        rescue Timeout::Error => e
+        rescue Timeout::Error
           FFMPEG.logger.error "Process hung...\n@command\n#{@command}\nOutput\n#{@output}\n"
           raise Error, "Process hung. Full output: #{@output}"
         end
@@ -96,7 +163,7 @@ module FFMPEG
     def validate_output_file(&block)
       if encoding_succeeded?
         yield(1.0) if block_given?
-        FFMPEG.logger.info "Transcoding of #{@movie.path} to #{@output_file} succeeded\n"
+        FFMPEG.logger.info "Transcoding of #{@movie.paths.join(', ')} to #{@output_file} succeeded\n"
       else
         errors = "Errors: #{@errors.join(", ")}. "
         FFMPEG.logger.error "Failed encoding...\n#{@command}\n\n#{@output}\n#{errors}\n"

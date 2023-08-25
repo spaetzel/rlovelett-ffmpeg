@@ -7,27 +7,75 @@ module FFMPEG
       merge!(options)
     end
 
+    # Returns the full subset of options any time a string is requested
     def to_s
       params = collect do |key, value|
-        send("convert_#{key}", value) if value && supports_option?(key)
+        attempt_self_call(key, value)
       end
 
       prefix_params = @prefix_options&.map do |key, value|
-        send("convert_#{key}", value) if value && supports_option?(key)
+        attempt_self_call(key, value)
       end
 
       # codecs should go before the presets so that the files will be matched successfully
       # all other parameters go after so that we can override whatever is in the preset
-      input   = params.select { |p| p =~ /^\-i / }
-      seek    = params.select {|p| p =~ /\-ss/ }
-      codecs  = params.select { |p| p =~ /codec/ }
-      presets = params.select { |p| p =~ /\-.pre/ }
-      other   = params - codecs - presets - input - seek
-      params  = prefix_params + seek + input + codecs + presets + other
+      inputs                    = params.select { |p| p =~ /\-i / }
+      seek                      = params.select {|p| p =~ /\-ss/ }
+      codecs                    = params.select { |p| p =~ /codec/ }
+      presets                   = params.select { |p| p =~ /\-.pre/ }
+      contains_complex_filter   = params.any? { |p| p =~ /\-filter_complex / }
+
+      other   = params - codecs - presets - inputs - seek
+      params  = prefix_params + seek + inputs + codecs + presets + other
+
+      num_inputs = inputs.first&.scan(/(?=\-i)/)&.count || 0
+      if num_inputs > 1 && !contains_complex_filter
+        multi_input_output_filter = "-filter_complex \"#{default_multi_input_complex_filter(num_inputs)}\" -map \"[v]\" -map \"[a]\""
+        params.push(multi_input_output_filter)
+      end
 
       params_string = params.join(" ")
       params_string << " #{convert_aspect(calculate_aspect)}" if calculate_aspect?
+
       params_string
+    end
+
+    # Returns a subset of the full encoding options, and must be requested explicitly
+    # Specifically useful for the pre-encode step which does not want the complex filters
+    def to_s_minimal
+      params = collect do |key, value|
+        attempt_self_call(key, value)
+      end
+
+      # codecs should go before the presets so that the files will be matched successfully
+      # all other parameters go after so that we can override whatever is in the preset
+      inputs                    = params.select { |p| p =~ /\-i / }
+      seek                      = params.select {|p| p =~ /\-ss/ }
+      codecs                    = params.select { |p| p =~ /codec/ }
+      presets                   = params.select { |p| p =~ /\-.pre/ }
+      complex_filter            = params.select { |p| p =~ /\-filter_complex / }
+
+      other   = params - codecs - presets - inputs - seek - complex_filter
+      params  = codecs + presets + other
+
+      params_string = params.join(" ")
+      params_string << " #{convert_aspect(calculate_aspect)}" if calculate_aspect?
+
+      params_string
+    end
+
+    def default_multi_input_complex_filter(num_inputs)
+      input_forming = ''
+      final_grouping = ''
+
+      num_inputs.times do |index|
+        input_forming += "[#{index}:v]setpts=PTS-STARTPTS[v#{index}];"
+        # TODO support audio-less videos by checking if any streams exist
+        final_grouping += "[v#{index}][#{index}:a]"
+      end
+
+      final_grouping += "concat=n=#{num_inputs}:v=1:a=1[v][a]"
+      return "#{input_forming}#{final_grouping}"
     end
 
     def width
@@ -38,8 +86,27 @@ module FFMPEG
       self[:resolution].split("x").last.to_i rescue nil
     end
 
+    def attempt_self_call(key, value)
+      if value
+        if supports_option_public?(key)
+          public_send("convert_#{key}", value)
+        elsif supports_option_private?(key)
+          send("convert_#{key}", value)
+        end
+      end
+    end
+
+    def convert_inputs(values)
+      "-i #{values.join(' -i ')}"
+    end
+
     private
-    def supports_option?(option)
+    def supports_option_public?(option)
+      option = RUBY_VERSION < "1.9" ? "convert_#{option}" : "convert_#{option}".to_sym
+      public_methods.include?(option)
+    end
+
+    def supports_option_private?(option)
       option = RUBY_VERSION < "1.9" ? "convert_#{option}" : "convert_#{option}".to_sym
       private_methods.include?(option)
     end
@@ -166,8 +233,9 @@ module FFMPEG
       value
     end
 
+    # Deprecated, but accounting for "old" syntax
     def convert_input(value)
-      "-i #{Shellwords.escape(value)}"
+      convert_inputs([value])
     end
 
     def k_format(value)
