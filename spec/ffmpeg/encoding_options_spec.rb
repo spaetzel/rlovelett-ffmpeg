@@ -137,6 +137,23 @@ module FFMPEG
         expect(converted).to eq("-i somefile.mp4 -pass 1 passlogfile bla-i-bla")
       end
 
+      it "correctly estimates the number of inputs if `-i` exists elsewhere for single input" do
+        converted = EncodingOptions.new({ input: '/somefile/_d_nI-iSsSF9NkHEELjolg/input_7dbaa2c6c3eef5aecac7e5.mp4' }).to_s
+        expect(converted).not_to include("-filter_complex")
+      end
+
+      it "correctly estimates the number of inputs if `-i` exists elsewhere for multiple inputs" do
+        converted = EncodingOptions.new({ inputs: ['/somefile/_d_nI-iSsSF9NkHEELjolg/input_7dbaa2c6c3eef5aecac7e51.mp4', '/somefile/_d_nI-iSsSF9NkHEELjolg/input_7dbaa2c6c3eef5aecac7e52.mp4'] }).to_s
+        expect(converted).to include("-filter_complex")
+        expect(converted).to include("concat=n=2:v=1:a=1")
+      end
+
+      it "correctly detects multiple inputs if three provided" do
+        converted = EncodingOptions.new({ inputs: ['somefile.mp4', 'someotherfile.mp4', 'someotherotherfile.mp4'] }).to_s
+        expect(converted).to include("-filter_complex")
+        expect(converted).to include("concat=n=3:v=1:a=1")
+      end
+
       it "should convert a lot of them simultaneously" do
         converted = EncodingOptions.new(video_codec: "libx264", audio_codec: "aac", video_bitrate: "1000k").to_s
         expect(converted).to match(/-acodec aac/)
