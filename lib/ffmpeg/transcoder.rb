@@ -1,6 +1,7 @@
 require 'open3'
 require 'shellwords'
 require 'fileutils'
+require 'securerandom'
 
 module FFMPEG
   class Transcoder
@@ -26,7 +27,7 @@ module FFMPEG
             FileUtils.mkdir_p(dirname)
           end
 
-          interim_path = "#{File.dirname(path)}/interim/#{File.basename(path, File.extname(path))}.mp4"
+          interim_path = "#{File.dirname(path)}/interim/#{File.basename(path, File.extname(path))}_#{SecureRandom.urlsafe_base64}.mp4"
           @movie.interim_paths << interim_path
         end
       else
@@ -87,7 +88,7 @@ module FFMPEG
       @movie.paths.each_with_index do |path, index|
         command = "#{@movie.ffmpeg_command} -y -i #{path} -movflags faststart #{pre_encode_options} -r #{output_frame_rate} -filter_complex \"[0:v]scale=#{@movie.height}:#{@movie.width},setsar=1[Scaled]\" -map \"[Scaled]\" -map \"0:a\" #{@movie.interim_paths[index]}"
 
-        FFMPEG.logger.info("Running transcoding...\n#{command}\n")
+        FFMPEG.logger.info("Running pre-encoding...\n#{command}\n")
         output = ""
 
         Open3.popen3(command) do |stdin, stdout, stderr, wait_thr|
