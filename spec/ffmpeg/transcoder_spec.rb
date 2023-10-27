@@ -329,7 +329,7 @@ module FFMPEG
 
       it 'creates interim inputs with scaling correctly applied based on input files' do
         transcoder = Transcoder.new(movie_with_multiple_dimension_inputs, output_path, EncodingOptions.new)
-        expect(Open3).to receive(:popen3).twice.with match(/.*\[0\:v\]scale\=640\:1138.*pad\=640\:1138\:-1\:-1\:color\=black.*/)
+        expect(Open3).to receive(:popen3).twice.with match(/.*\[0\:v\]scale\=853\:480.*pad\=853\:480\:-1\:-1\:color\=black.*/)
         transcoder.send(:pre_encode_if_necessary)
       end
     end
