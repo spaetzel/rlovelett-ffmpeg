@@ -3,6 +3,10 @@ require 'shellwords'
 require 'fileutils'
 require 'securerandom'
 
+FIXED_LOWER_TO_UPPER_RATIO = 16/9
+FIXED_UPPER_TO_LOWER_RATIO = 9/16
+
+
 module FFMPEG
   class Transcoder
     @@timeout = 30
@@ -84,9 +88,31 @@ module FFMPEG
       # Add a subset of the full encode options
       pre_encode_options = @raw_options.is_a?(EncodingOptions) ? @raw_options.to_s_minimal : @raw_options
 
-      # Convert the individual videos into a common format, using the first video in as the "resolution"
+      max_width = @movie.width
+      max_height = @movie.height
+      # Find best highest resolution
+      @movie.paths.each do |path|
+        local_movie = Movie.new(path)
+
+        # If the local resolution is larger than the current highest
+          max_width = local_movie.width if local_movie.width > max_width
+          max_height = local_movie.height if local_movie.height > max_height
+      end
+
+      # Convert to always be a 16:9 ratio
+      if max_width > max_height
+        max_height = max_width * FIXED_LOWER_TO_UPPER_RATIO
+      else
+        max_width = max_height * FIXED_UPPER_TO_LOWER_RATIO
+      end
+
+      # In the event either dimension had rounding issues, round it to the nearest whole number
+      max_width = max_width.round()
+      max_height = max_height.round()
+
+      # Convert the individual videos into a common format
       @movie.paths.each_with_index do |path, index|
-        command = "#{@movie.ffmpeg_command} -y -i #{path} -movflags faststart #{pre_encode_options} -r #{output_frame_rate} -filter_complex \"[0:v]scale=#{@movie.height}:#{@movie.width},setsar=1[Scaled]\" -map \"[Scaled]\" -map \"0:a\" #{@movie.interim_paths[index]}"
+        command = "#{@movie.ffmpeg_command} -y -i #{path} -movflags faststart #{pre_encode_options} -r #{output_frame_rate} -filter_complex \"[0:v]scale=#{max_width}:#{max_height}:force_original_aspect_ratio=decrease,pad=#{max_width}:#{max_height}:-1:-1:color=black,setsar=1[Scaled]\" -map \"[Scaled]\" -map \"0:a\" #{@movie.interim_paths[index]}"
 
         FFMPEG.logger.info("Running pre-encoding...\n#{command}\n")
         output = ""
