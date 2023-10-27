@@ -117,11 +117,20 @@ module FFMPEG
 
           rescue Timeout::Error
             FFMPEG.logger.error "Process hung...\n@command\n#{command}\nOutput\n#{output}\n"
+            delete_files(@movie.interim_paths[index])
             raise Error, "Process hung. Full output: #{output}"
+          rescue StandardException
+            FFMPEG.logger.error "Process failed...\n@command\n#{command}\nOutput\n#{output}\n"
+            delete_files(@movie.interim_paths[index])
+            raise
           end
         end
       end
     end
+
+  def delete_files(destination)
+    FileUtils.rm_rf(destination, secure: true) unless destination.nil?
+  end
 
     def transcode_movie
       pre_encode_if_necessary
