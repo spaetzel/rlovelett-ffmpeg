@@ -3,8 +3,8 @@ require 'shellwords'
 require 'fileutils'
 require 'securerandom'
 
-FIXED_LOWER_TO_UPPER_RATIO = 16/9
-FIXED_UPPER_TO_LOWER_RATIO = 9/16
+FIXED_LOWER_TO_UPPER_RATIO = 16.0/9.0
+FIXED_UPPER_TO_LOWER_RATIO = 9.0/16.0
 
 
 module FFMPEG
@@ -99,16 +99,16 @@ module FFMPEG
           max_height = local_movie.height if local_movie.height > max_height
       end
 
+      converted_width = (max_height * FIXED_UPPER_TO_LOWER_RATIO).round()
+      converted_height = (max_width * FIXED_LOWER_TO_UPPER_RATIO).round()
       # Convert to always be a 16:9 ratio
-      if max_width > max_height
-        max_height = max_width * FIXED_LOWER_TO_UPPER_RATIO
+      # If the converted width will not be a decrease in resolution, upscale the width
+      if converted_width >= max_width
+        max_width = converted_width
+      # Otherwise, upscale the height
       else
-        max_width = max_height * FIXED_UPPER_TO_LOWER_RATIO
+        max_height = converted_height
       end
-
-      # In the event either dimension had rounding issues, round it to the nearest whole number
-      max_width = max_width.round()
-      max_height = max_height.round()
 
       # Convert the individual videos into a common format
       @movie.paths.each_with_index do |path, index|

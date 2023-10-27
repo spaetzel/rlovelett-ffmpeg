@@ -5,6 +5,7 @@ module FFMPEG
     let(:movie) { Movie.new("#{fixture_path}/movies/awesome movie.mov") }
     let(:movie_with_two_inputs) { Movie.new(["#{fixture_path}/movies/awesome movie.mov", "#{fixture_path}/movies/awesome_widescreen.mov"]) }
     let(:movie_with_three_inputs) { Movie.new(["#{fixture_path}/movies/awesome movie.mov", "#{fixture_path}/movies/awesome_widescreen.mov", "#{fixture_path}/movies/awesome'movie.mov"]) }
+    let(:movie_with_multiple_dimension_inputs) { Movie.new(["#{fixture_path}/movies/awesome_widescreen.mov", "#{fixture_path}/movies/sideways_movie.mov"]) }
 
     describe "initialization" do
       let(:output_path) { "#{tmp_path}/awesome.flv" }
@@ -314,6 +315,22 @@ module FFMPEG
         allow(transcoder).to receive(:validate_output_file)
         expect(transcoder).not_to receive(:encoded)
         expect(transcoder.run).to eq(nil)
+      end
+    end
+
+    describe "pre_encode_if_necessary" do
+      let(:output_path) { "#{tmp_path}/pre_encode_out.mp4" }
+
+      it 'returns early if only a single video file' do
+        transcoder = Transcoder.new(movie, output_path, EncodingOptions.new)
+        expect(movie).not_to receive(:height)
+        transcoder.send(:pre_encode_if_necessary)
+      end
+
+      it 'creates interim inputs with scaling correctly applied based on input files' do
+        transcoder = Transcoder.new(movie_with_multiple_dimension_inputs, output_path, EncodingOptions.new)
+        expect(Open3).to receive(:popen3).twice.with match(/.*\[0\:v\]scale\=640\:1138.*pad\=640\:1138\:-1\:-1\:color\=black.*/)
+        transcoder.send(:pre_encode_if_necessary)
       end
     end
   end
