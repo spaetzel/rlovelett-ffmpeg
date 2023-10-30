@@ -92,8 +92,7 @@ module FFMPEG
 
       # Convert the individual videos into a common format
       @movie.paths.each_with_index do |path, index|
-        command = "#{@movie.ffmpeg_command} -y -i #{path} -movflags faststart #{pre_encode_options} -r #{output_frame_rate} -filter_complex \"[0:v]scale=#{max_width}:#{max_height}:force_original_aspect_ratio=decrease,pad=#{max_width}:#{max_height}:-1:-1:color=black,setsar=1[Scaled]\" -map \"[Scaled]\" -map \"0:a\" #{@movie.interim_paths[index]}"
-        puts command
+        command = "#{@movie.ffmpeg_command} -y -i #{path} -movflags faststart #{pre_encode_options} -r #{output_frame_rate} -filter_complex \"[0:v]scale=#{max_width}:#{max_height}:force_original_aspect_ratio=decrease,pad=#{max_width}:#{max_height}:(ow-iw)/2:(oh-ih)/2:color=black,setsar=1[Scaled]\" -map \"[Scaled]\" -map \"0:a\" #{@movie.interim_paths[index]}"
         FFMPEG.logger.info("Running pre-encoding...\n#{command}\n")
         output = ""
 
@@ -246,7 +245,7 @@ module FFMPEG
       max_width = @movie.width
       max_height = @movie.height
       # Find best highest resolution
-      @movie.paths.each do |path|
+      @movie.unescaped_paths.each do |path|
         local_movie = Movie.new(path)
 
         # If the local resolution is larger than the current highest
@@ -254,8 +253,8 @@ module FFMPEG
           max_height = local_movie.height if local_movie.height > max_height
       end
 
-      converted_width = (max_height * FIXED_LOWER_TO_UPPER_RATIO).round()
-      converted_height = (max_width * FIXED_UPPER_TO_LOWER_RATIO).round()
+      converted_width = (max_height * FIXED_LOWER_TO_UPPER_RATIO).ceil()
+      converted_height = (max_width * FIXED_UPPER_TO_LOWER_RATIO).ceil()
       # Convert to always be a 16:9 ratio
       # If the converted width will not be a decrease in resolution, upscale the width
       if converted_width >= max_width
