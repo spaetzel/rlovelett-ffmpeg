@@ -249,8 +249,8 @@ module FFMPEG
         local_movie = Movie.new(path)
 
         # If the local resolution is larger than the current highest
-          max_width = local_movie.width if local_movie.width > max_width
-          max_height = local_movie.height if local_movie.height > max_height
+        max_width = [local_movie.width, max_width].max
+        max_height = [local_movie.height, max_height].max
       end
 
       converted_width = (max_height * FIXED_LOWER_TO_UPPER_RATIO).ceil()
