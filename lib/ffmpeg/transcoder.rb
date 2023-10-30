@@ -88,44 +88,9 @@ module FFMPEG
       # Add a subset of the full encode options
       pre_encode_options = @raw_options.is_a?(EncodingOptions) ? @raw_options.to_s_minimal : @raw_options
 
-      # max_width = @movie.width
-      # max_height = @movie.height
-      # # Find best highest resolution
-      # @movie.paths.each do |path|
-      #   local_movie = Movie.new(path)
-
-      #   # If the local resolution is larger than the current highest
-      #     max_width = local_movie.width if local_movie.width > max_width
-      #     max_height = local_movie.height if local_movie.height > max_height
-      # end
-
-      # converted_width = (max_height * FIXED_LOWER_TO_UPPER_RATIO).round()
-      # converted_height = (max_width * FIXED_UPPER_TO_LOWER_RATIO).round()
-      # # Convert to always be a 16:9 ratio
-      # # If the converted width will not be a decrease in resolution, upscale the width
-      # if converted_width >= max_width
-      #   max_width = converted_width
-      # # Otherwise, upscale the height
-      # else
-      #   max_height = converted_height
-      # end
-
       # Convert the individual videos into a common format
       @movie.paths.each_with_index do |path, index|
-        local_movie = Movie.new(path)
-        local_width = local_movie.width
-        local_height = local_movie.height
-
-        converted_width = (local_height * FIXED_LOWER_TO_UPPER_RATIO).round()
-        converted_height = (local_width * FIXED_UPPER_TO_LOWER_RATIO).round()
-        # Convert to always be a 16:9 ratio
-        # If the converted width will not be a decrease in resolution, upscale the width
-        if converted_width >= local_width
-          local_width = converted_width
-        # Otherwise, upscale the height
-        else
-          local_height = converted_height
-        end
+        local_width, local_height = calculate_ideal_interim_dimensions(path)
 
         command = "#{@movie.ffmpeg_command} -y -i #{path} -movflags faststart #{pre_encode_options} -r #{output_frame_rate} -filter_complex \"[0:v]scale=#{local_width}:#{local_height}:force_original_aspect_ratio=decrease,pad=#{local_width}:#{local_height}:-1:-1:color=black,setsar=1[Scaled]\" -map \"[Scaled]\" -map \"0:a\" #{@movie.interim_paths[index]}"
         puts command
@@ -275,6 +240,26 @@ module FFMPEG
       prefix_options = "#{transcoder_prefix_options.is_a?(String) ? transcoder_prefix_options : EncodingOptions.new(transcoder_prefix_options)}"
       prefix_options = "#{prefix_options} " if prefix_options.length > 0
       return prefix_options
+    end
+
+    # We want the smallest file size that will be a 16:9 ratio containing or matching the input video dimensions
+    def calculate_ideal_interim_dimensions(path)
+      local_movie = Movie.new(path)
+      local_width = local_movie.width
+      local_height = local_movie.height
+
+      converted_width = (local_height * FIXED_LOWER_TO_UPPER_RATIO).round()
+      converted_height = (local_width * FIXED_UPPER_TO_LOWER_RATIO).round()
+      # Convert to always be a 16:9 ratio
+      # If the converted width will not be a decrease in resolution, upscale the width
+      if converted_width >= local_width
+        local_width = converted_width
+      # Otherwise, upscale the height
+      else
+        local_height = converted_height
+      end
+
+      return local_width, local_height
     end
   end
 end
