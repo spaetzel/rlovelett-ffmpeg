@@ -44,7 +44,7 @@ module FFMPEG
       elsif options.is_a?(EncodingOptions)
         @raw_options = options.merge(:inputs => @movie.interim_paths) unless options.include? :inputs
       elsif options.is_a?(Hash)
-        @raw_options = EncodingOptions.new(options.merge(:inputs => @movie.interim_paths), transcoder_prefix_options)
+        @raw_options = EncodingOptions.new(options.merge(inputs: @movie.interim_paths, all_streams_contain_audio: @movie.all_streams_contain_audio?), transcoder_prefix_options)
       else
         raise ArgumentError, "Unknown options format '#{options.class}', should be either EncodingOptions, Hash or String."
       end
@@ -91,8 +91,11 @@ module FFMPEG
       max_width, max_height = calculate_interim_max_dimensions
 
       # Convert the individual videos into a common format
-      @movie.paths.each_with_index do |path, index|
-        command = "#{@movie.ffmpeg_command} -y -i #{path} -movflags faststart #{pre_encode_options} -r #{output_frame_rate} -filter_complex \"[0:v]scale=#{max_width}:#{max_height}:force_original_aspect_ratio=decrease,pad=#{max_width}:#{max_height}:(ow-iw)/2:(oh-ih)/2:color=black,setsar=1[Scaled]\" -map \"[Scaled]\" -map \"0:a\" #{@movie.interim_paths[index]}"
+      @movie.unescaped_paths.each_with_index do |path, index|
+        local_movie = Movie.new(path)
+        audio_map = @movie.all_streams_contain_audio? ? '-map "0:a"' : ''
+
+        command = "#{@movie.ffmpeg_command} -y -i #{Shellwords.escape(path)} -movflags faststart #{pre_encode_options} -r #{output_frame_rate} -filter_complex \"[0:v]scale=#{max_width}:#{max_height}:force_original_aspect_ratio=decrease,pad=#{max_width}:#{max_height}:(ow-iw)/2:(oh-ih)/2:color=black,setsar=1[Scaled]\" -map \"[Scaled]\" #{audio_map} #{@movie.interim_paths[index]}"
         FFMPEG.logger.info("Running pre-encoding...\n#{command}\n")
         output = ""
 
