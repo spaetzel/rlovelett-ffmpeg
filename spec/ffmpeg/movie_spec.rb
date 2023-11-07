@@ -443,7 +443,7 @@ module FFMPEG
         expect(movie.all_streams_contain_audio?).to be_truthy
       end
 
-      it 'returns true if any stream contains no audio' do
+      it 'returns false if any stream contains no audio' do
         movie = Movie.new(["#{fixture_path}/movies/test_automation_5s.mp4", "#{fixture_path}/movies/awesome_widescreen.mov"])
         expect(movie.all_streams_contain_audio?).to be_falsey
       end
