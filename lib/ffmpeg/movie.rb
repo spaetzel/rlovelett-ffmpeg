@@ -240,6 +240,12 @@ module FFMPEG
     end
 
     def all_streams_contain_audio?
+      @all_streams_contain_audio ||= calc_all_streams_contain_audio
+    end
+
+    protected
+
+    def calc_all_streams_contain_audio
       return false if @audio_stream.nil?
       @paths.each do |path|
         return false unless Movie.new(path).audio_stream
@@ -248,7 +254,6 @@ module FFMPEG
       return true
     end
 
-    protected
     def aspect_from_dar
       return nil unless dar
       w, h = dar.split(":")
