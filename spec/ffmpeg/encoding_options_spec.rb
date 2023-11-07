@@ -148,11 +148,25 @@ module FFMPEG
         expect(converted).to include("concat=n=2:v=1:a=1")
       end
 
-      it "correctly detects multiple inputs if three provided" do
-        converted = EncodingOptions.new({ inputs: ['somefile.mp4', 'someotherfile.mp4', 'someotherotherfile.mp4'] }).to_s
-        expect(converted).to include("-filter_complex")
-        expect(converted).to include("concat=n=3:v=1:a=1")
-      end
+      describe 'correctly detects multiple inputs if three provided' do
+        it "without audio override" do
+          converted = EncodingOptions.new({ inputs: ['somefile.mp4', 'someotherfile.mp4', 'someotherotherfile.mp4'] }).to_s
+          expect(converted).to include("-filter_complex")
+          expect(converted).to include("concat=n=3:v=1:a=1")
+        end
+
+        it "with audio override true" do
+          converted = EncodingOptions.new({ inputs: ['somefile.mp4', 'someotherfile.mp4', 'someotherotherfile.mp4'], all_streams_contain_audio: true }).to_s
+          expect(converted).to include("-filter_complex")
+          expect(converted).to include("concat=n=3:v=1:a=1")
+        end
+
+        it "with audio override false" do
+          converted = EncodingOptions.new({ inputs: ['somefile.mp4', 'someotherfile.mp4', 'someotherotherfile.mp4'], all_streams_contain_audio: false }).to_s
+          expect(converted).to include("-filter_complex")
+          expect(converted).to include("concat=n=3:v=1:a=0")
+        end
+    end
 
       it "should convert a lot of them simultaneously" do
         converted = EncodingOptions.new(video_codec: "libx264", audio_codec: "aac", video_bitrate: "1000k").to_s

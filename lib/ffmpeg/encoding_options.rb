@@ -4,7 +4,8 @@ module FFMPEG
   class EncodingOptions < Hash
     def initialize(options = {}, prefix_options = {})
       @prefix_options = prefix_options
-      @all_streams_contain_audio = options.fetch(:all_streams_contain_audio, false)
+      # If we are not told otherwise, assume that all streams contain audio
+      @all_streams_contain_audio = options.fetch(:all_streams_contain_audio, true)
       merge!(options)
     end
 

@@ -3,9 +3,10 @@ require 'spec_helper.rb'
 module FFMPEG
   describe Transcoder do
     let(:movie) { Movie.new("#{fixture_path}/movies/awesome movie.mov") }
-    let(:movie_with_two_inputs) { Movie.new(["#{fixture_path}/movies/awesome movie.mov", "#{fixture_path}/movies/awesome_widescreen.mov"]) }
+    let(:movie_with_two_inputs) { Movie.new(["#{fixture_path}/movies/awesome'movie.mov", "#{fixture_path}/movies/awesome_widescreen.mov"]) }
     let(:movie_with_three_inputs) { Movie.new(["#{fixture_path}/movies/awesome movie.mov", "#{fixture_path}/movies/awesome_widescreen.mov", "#{fixture_path}/movies/awesome'movie.mov"]) }
     let(:movie_with_multiple_dimension_inputs) { Movie.new(["#{fixture_path}/movies/awesome_widescreen.mov", "#{fixture_path}/movies/sideways_movie.mov"]) }
+    let(:movie_with_multiple_dimension_inputs_without_audio) { Movie.new(["#{fixture_path}/movies/test_automation_5s.mp4", "#{fixture_path}/movies/sideways_movie.mov"]) }
 
     describe "initialization" do
       let(:output_path) { "#{tmp_path}/awesome.flv" }
@@ -327,10 +328,18 @@ module FFMPEG
         transcoder.send(:pre_encode_if_necessary)
       end
 
-      it 'creates interim inputs with scaling correctly applied based on input files' do
-        transcoder = Transcoder.new(movie_with_multiple_dimension_inputs, output_path, EncodingOptions.new)
-        expect(Open3).to receive(:popen3).twice.with match(/.*\[0\:v\]scale\=853\:480.*pad\=853\:480\:-1\:-1\:color\=black.*/)
-        transcoder.send(:pre_encode_if_necessary)
+      describe 'creates interim inputs with scaling correctly applied based on input files' do
+        it 'with audio' do
+          transcoder = Transcoder.new(movie_with_multiple_dimension_inputs, output_path, EncodingOptions.new)
+          expect(Open3).to receive(:popen3).twice.with match(/.*\[0\:v\]scale\=854\:480.*pad\=854\:480\:\(ow\-iw\)\/2\:\(oh\-ih\)\/2\:color\=black.*\-map \"0\:a\".*/)
+          transcoder.send(:pre_encode_if_necessary)
+
+        end
+        it 'without audio' do
+          transcoder = Transcoder.new(movie_with_multiple_dimension_inputs_without_audio, output_path, EncodingOptions.new)
+          expect(Open3).to receive(:popen3).twice.with match(/.*\[0\:v\]scale\=960\:540.*pad\=960\:540\:\(ow\-iw\)\/2\:\(oh\-ih\)\/2\:color\=black.*((?!\-map \"0\:a\")).*/)
+          transcoder.send(:pre_encode_if_necessary)
+        end
       end
     end
   end

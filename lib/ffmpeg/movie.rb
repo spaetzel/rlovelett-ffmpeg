@@ -246,9 +246,10 @@ module FFMPEG
     protected
 
     def calc_all_streams_contain_audio
-      return false if @audio_stream.nil?
-      @paths.each do |path|
-        return false unless Movie.new(path).audio_stream
+      return false if @audio_stream.nil? || @audio_stream.empty?
+      @unescaped_paths.each do |path|
+        local_movie = Movie.new(path)
+        return false if local_movie.audio_stream.nil? || local_movie.audio_stream.empty?
       end
 
       return true

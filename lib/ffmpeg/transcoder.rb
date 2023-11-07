@@ -91,11 +91,11 @@ module FFMPEG
       max_width, max_height = calculate_interim_max_dimensions
 
       # Convert the individual videos into a common format
-      @movie.paths.each_with_index do |path, index|
+      @movie.unescaped_paths.each_with_index do |path, index|
         local_movie = Movie.new(path)
-        audio_map = @movie.all_streams_contain_audio? ? '-map \"0:a\"' : ''
+        audio_map = @movie.all_streams_contain_audio? ? '-map "0:a"' : ''
 
-        command = "#{@movie.ffmpeg_command} -y -i #{path} -movflags faststart #{pre_encode_options} -r #{output_frame_rate} -filter_complex \"[0:v]scale=#{max_width}:#{max_height}:force_original_aspect_ratio=decrease,pad=#{max_width}:#{max_height}:(ow-iw)/2:(oh-ih)/2:color=black,setsar=1[Scaled]\" -map \"[Scaled]\" #{audio_map} #{@movie.interim_paths[index]}"
+        command = "#{@movie.ffmpeg_command} -y -i #{Shellwords.escape(path)} -movflags faststart #{pre_encode_options} -r #{output_frame_rate} -filter_complex \"[0:v]scale=#{max_width}:#{max_height}:force_original_aspect_ratio=decrease,pad=#{max_width}:#{max_height}:(ow-iw)/2:(oh-ih)/2:color=black,setsar=1[Scaled]\" -map \"[Scaled]\" #{audio_map} #{@movie.interim_paths[index]}"
         FFMPEG.logger.info("Running pre-encoding...\n#{command}\n")
         output = ""
 
