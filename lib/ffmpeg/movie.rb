@@ -10,7 +10,6 @@ module FFMPEG
     attr_reader :color_primaries, :avframe_color_space, :color_transfer
     attr_reader :container
     attr_reader :error
-    attr_reader :all_streams_contain_audio
 
     UNSUPPORTED_CODEC_PATTERN = /^Unsupported codec with id (\d+) for input stream (\d+)$/
 
@@ -149,11 +148,6 @@ module FFMPEG
           std_error: std_error
         )
       end
-
-      @all_streams_contain_audio = !@audio_stream.nil?
-      @paths.each do |path|
-        @all_streams_contain_audio = false unless Movie.new(path).audio_stream
-      end
     end
 
     def ffprobe_command
@@ -243,6 +237,15 @@ module FFMPEG
 
     def blackdetect
       BlackDetect.new(self).run
+    end
+
+    def all_streams_contain_audio?
+      return false if @audio_stream.nil?
+      @paths.each do |path|
+        return false unless Movie.new(path).audio_stream
+      end
+
+      return true
     end
 
     protected

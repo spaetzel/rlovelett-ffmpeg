@@ -72,11 +72,11 @@ module FFMPEG
         input_forming += "[#{index}:v]setpts=PTS-STARTPTS[v#{index}];"
         # TODO support audio-less videos by checking if any streams exist
         final_grouping += "[v#{index}]"
-        final_grouping += "[#{index}:a]" if @movie.all_streams_contain_audio
+        final_grouping += "[#{index}:a]" if @movie.all_streams_contain_audio?
       end
 
       final_grouping += "concat=n=#{num_inputs}:v=1:a=1[v]"
-      final_grouping += "[a]" if @movie.all_streams_contain_audio
+      final_grouping += "[a]" if @movie.all_streams_contain_audio?
       return "#{input_forming}#{final_grouping}"
     end
 
