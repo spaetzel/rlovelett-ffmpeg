@@ -77,7 +77,7 @@ module FFMPEG
         final_grouping += "[#{index}:a]" if @all_streams_contain_audio
       end
 
-      final_grouping += "concat=n=#{num_inputs}:v=1:a=1[v]"
+      final_grouping += "concat=n=#{num_inputs}:v=1:a=#{@all_streams_contain_audio ? 1 : 0}[v]"
       final_grouping += "[a]" if @all_streams_contain_audio
       return "#{input_forming}#{final_grouping}"
     end
