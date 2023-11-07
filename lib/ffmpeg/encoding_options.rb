@@ -4,6 +4,7 @@ module FFMPEG
   class EncodingOptions < Hash
     def initialize(options = {}, prefix_options = {})
       @prefix_options = prefix_options
+      @all_streams_contain_audio = options.fetch(:all_streams_contain_audio, false)
       merge!(options)
     end
 
@@ -30,7 +31,8 @@ module FFMPEG
 
       num_inputs = inputs.first&.scan(/(^\-i| \-i) /)&.count || 0
       if num_inputs > 1 && !contains_complex_filter
-        multi_input_output_filter = "-filter_complex \"#{default_multi_input_complex_filter(num_inputs)}\" -map \"[v]\" -map \"[a]\""
+        multi_input_output_filter = "-filter_complex \"#{default_multi_input_complex_filter(num_inputs)}\" -map \"[v]\""
+        multi_input_output_filter += " -map \"[a]\"" if @all_streams_contain_audio
         params.push(multi_input_output_filter)
       end
 
@@ -72,11 +74,11 @@ module FFMPEG
         input_forming += "[#{index}:v]setpts=PTS-STARTPTS[v#{index}];"
         # TODO support audio-less videos by checking if any streams exist
         final_grouping += "[v#{index}]"
-        final_grouping += "[#{index}:a]" if @movie.all_streams_contain_audio?
+        final_grouping += "[#{index}:a]" if @all_streams_contain_audio
       end
 
       final_grouping += "concat=n=#{num_inputs}:v=1:a=1[v]"
-      final_grouping += "[a]" if @movie.all_streams_contain_audio?
+      final_grouping += "[a]" if @all_streams_contain_audio
       return "#{input_forming}#{final_grouping}"
     end
 

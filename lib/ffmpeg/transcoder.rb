@@ -44,7 +44,7 @@ module FFMPEG
       elsif options.is_a?(EncodingOptions)
         @raw_options = options.merge(:inputs => @movie.interim_paths) unless options.include? :inputs
       elsif options.is_a?(Hash)
-        @raw_options = EncodingOptions.new(options.merge(:inputs => @movie.interim_paths), transcoder_prefix_options)
+        @raw_options = EncodingOptions.new(options.merge(inputs: @movie.interim_paths, all_streams_contain_audio: @movie.all_streams_contain_audio?), transcoder_prefix_options)
       else
         raise ArgumentError, "Unknown options format '#{options.class}', should be either EncodingOptions, Hash or String."
       end
