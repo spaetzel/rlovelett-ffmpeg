@@ -100,8 +100,6 @@ module FFMPEG
         FFMPEG.logger.info("Running pre-encoding...\n#{command}\n")
         output = ""
 
-        puts command
-
         Open3.popen3(command) do |stdin, stdout, stderr, wait_thr|
           begin
             yield(0.0) if block_given?
