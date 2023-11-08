@@ -6,7 +6,8 @@ module FFMPEG
     let(:movie_with_two_inputs) { Movie.new(["#{fixture_path}/movies/awesome'movie.mov", "#{fixture_path}/movies/awesome_widescreen.mov"]) }
     let(:movie_with_three_inputs) { Movie.new(["#{fixture_path}/movies/awesome movie.mov", "#{fixture_path}/movies/awesome_widescreen.mov", "#{fixture_path}/movies/awesome'movie.mov"]) }
     let(:movie_with_multiple_dimension_inputs) { Movie.new(["#{fixture_path}/movies/awesome_widescreen.mov", "#{fixture_path}/movies/sideways_movie.mov"]) }
-    let(:movie_with_multiple_dimension_inputs_without_audio) { Movie.new(["#{fixture_path}/movies/test_automation_5s.mp4", "#{fixture_path}/movies/sideways_movie.mov"]) }
+    let(:movie_with_multiple_dimension_inputs_with_no_audio) { Movie.new(["#{fixture_path}/movies/test_automation_5s.mp4", "#{fixture_path}/movies/test_automation_5s.mp4"]) }
+    let(:movie_with_multiple_dimension_inputs_with_partial_audio) { Movie.new(["#{fixture_path}/movies/test_automation_5s.mp4", "#{fixture_path}/movies/sideways_movie.mov"]) }
 
     describe "initialization" do
       let(:output_path) { "#{tmp_path}/awesome.flv" }
@@ -335,9 +336,19 @@ module FFMPEG
           transcoder.send(:pre_encode_if_necessary)
 
         end
-        it 'without audio' do
-          transcoder = Transcoder.new(movie_with_multiple_dimension_inputs_without_audio, output_path, EncodingOptions.new)
-          expect(Open3).to receive(:popen3).twice.with match(/.*\[0\:v\]scale\=960\:540.*pad\=960\:540\:\(ow\-iw\)\/2\:\(oh\-ih\)\/2\:color\=black.*((?!\-map \"0\:a\")).*/)
+
+        it 'with silent audio' do
+          transcoder = Transcoder.new(movie_with_multiple_dimension_inputs_with_partial_audio, output_path, EncodingOptions.new)
+          # Match silent audio fill
+          expect(Open3).to receive(:popen3).once.with match(/.*\[0\:v\]scale\=960\:540.*pad\=960\:540\:\(ow\-iw\)\/2\:\(oh\-ih\)\/2\:color\=black.*\-map \"\[a\]\".*/)
+          # Retain "real" audio
+          expect(Open3).to receive(:popen3).once.with match(/.*\[0\:v\]scale\=960\:540.*pad\=960\:540\:\(ow\-iw\)\/2\:\(oh\-ih\)\/2\:color\=black.*\-map \"0\:a\".*/)
+          transcoder.send(:pre_encode_if_necessary)
+        end
+
+        it 'without any audio' do
+          transcoder = Transcoder.new(movie_with_multiple_dimension_inputs_with_no_audio, output_path, EncodingOptions.new)
+          expect(Open3).to receive(:popen3).twice.with match(/.*\[0\:v\]scale\=960\:540.*pad\=960\:540\:\(ow\-iw\)\/2\:\(oh\-ih\)\/2\:color\=black.*((?!\-map \"0\:a\")(?!\-map \"\[a\]\")).*/)
           transcoder.send(:pre_encode_if_necessary)
         end
       end

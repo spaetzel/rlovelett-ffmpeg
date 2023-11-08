@@ -239,20 +239,20 @@ module FFMPEG
       BlackDetect.new(self).run
     end
 
-    def all_streams_contain_audio?
-      @all_streams_contain_audio ||= calc_all_streams_contain_audio
+    def any_streams_contain_audio?
+      @any_streams_contain_audio ||= calc_any_streams_contain_audio
     end
 
     protected
 
-    def calc_all_streams_contain_audio
-      return false if @audio_stream.nil? || @audio_stream.empty?
+    def calc_any_streams_contain_audio
+      return true unless @audio_stream.nil? || @audio_stream.empty?
       @unescaped_paths.each do |path|
         local_movie = Movie.new(path)
-        return false if local_movie.audio_stream.nil? || local_movie.audio_stream.empty?
+        return true unless local_movie.audio_stream.nil? || local_movie.audio_stream.empty?
       end
 
-      return true
+      return false
     end
 
     def aspect_from_dar

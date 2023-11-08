@@ -156,13 +156,13 @@ module FFMPEG
         end
 
         it "with audio override true" do
-          converted = EncodingOptions.new({ inputs: ['somefile.mp4', 'someotherfile.mp4', 'someotherotherfile.mp4'], all_streams_contain_audio: true }).to_s
+          converted = EncodingOptions.new({ inputs: ['somefile.mp4', 'someotherfile.mp4', 'someotherotherfile.mp4'], any_streams_contain_audio: true }).to_s
           expect(converted).to include("-filter_complex")
           expect(converted).to include("concat=n=3:v=1:a=1")
         end
 
         it "with audio override false" do
-          converted = EncodingOptions.new({ inputs: ['somefile.mp4', 'someotherfile.mp4', 'someotherotherfile.mp4'], all_streams_contain_audio: false }).to_s
+          converted = EncodingOptions.new({ inputs: ['somefile.mp4', 'someotherfile.mp4', 'someotherotherfile.mp4'], any_streams_contain_audio: false }).to_s
           expect(converted).to include("-filter_complex")
           expect(converted).to include("concat=n=3:v=1:a=0")
         end
