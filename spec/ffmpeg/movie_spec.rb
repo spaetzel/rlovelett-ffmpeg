@@ -425,27 +425,27 @@ module FFMPEG
       end
     end
 
-    describe '#all_streams_contain_audio?' do
+    describe '#any_streams_contain_audio?' do
       it 'caches the result' do
-        expect_any_instance_of(Movie).to receive(:calc_all_streams_contain_audio).once.and_return(true)
+        expect_any_instance_of(Movie).to receive(:calc_any_streams_contain_audio).once.and_return(true)
         movie = Movie.new("#{fixture_path}/movies/test_automation_5s.mp4")
-        expect(movie.all_streams_contain_audio?).to be_truthy
-        expect(movie.all_streams_contain_audio?).to be_truthy
+        expect(movie.any_streams_contain_audio?).to be_truthy
+        expect(movie.any_streams_contain_audio?).to be_truthy
       end
 
       it 'returns true if one stream contains audio' do
         movie = Movie.new("#{fixture_path}/movies/awesome_widescreen.mov")
-        expect(movie.all_streams_contain_audio?).to be_truthy
+        expect(movie.any_streams_contain_audio?).to be_truthy
       end
 
-      it 'returns true if all streams contain audio' do
-        movie = Movie.new(["#{fixture_path}/movies/awesome_widescreen.mov", "#{fixture_path}/movies/awesome_widescreen.mov"])
-        expect(movie.all_streams_contain_audio?).to be_truthy
-      end
-
-      it 'returns false if any stream contains no audio' do
+      it 'returns true if any streams contain audio' do
         movie = Movie.new(["#{fixture_path}/movies/test_automation_5s.mp4", "#{fixture_path}/movies/awesome_widescreen.mov"])
-        expect(movie.all_streams_contain_audio?).to be_falsey
+        expect(movie.any_streams_contain_audio?).to be_truthy
+      end
+
+      it 'returns false if all stream contains no audio' do
+        movie = Movie.new(["#{fixture_path}/movies/test_automation_5s.mp4", "#{fixture_path}/movies/test_automation_5s.mp4"])
+        expect(movie.any_streams_contain_audio?).to be_falsey
       end
 
     end

@@ -44,7 +44,7 @@ module FFMPEG
       elsif options.is_a?(EncodingOptions)
         @raw_options = options.merge(:inputs => @movie.interim_paths) unless options.include? :inputs
       elsif options.is_a?(Hash)
-        @raw_options = EncodingOptions.new(options.merge(inputs: @movie.interim_paths, all_streams_contain_audio: @movie.all_streams_contain_audio?), transcoder_prefix_options)
+        @raw_options = EncodingOptions.new(options.merge(inputs: @movie.interim_paths, any_streams_contain_audio: @movie.any_streams_contain_audio?), transcoder_prefix_options)
       else
         raise ArgumentError, "Unknown options format '#{options.class}', should be either EncodingOptions, Hash or String."
       end
@@ -90,14 +90,17 @@ module FFMPEG
 
       max_width, max_height = calculate_interim_max_dimensions
 
+      silent_audio_source = '-f lavfi aevalsrc=0'
+
       # Convert the individual videos into a common format
       @movie.unescaped_paths.each_with_index do |path, index|
-        local_movie = Movie.new(path)
-        audio_map = @movie.all_streams_contain_audio? ? '-map "0:a"' : ''
+        audio_map = determine_audio_for_pre_encode(path)
 
         command = "#{@movie.ffmpeg_command} -y -i #{Shellwords.escape(path)} -movflags faststart #{pre_encode_options} -r #{output_frame_rate} -filter_complex \"[0:v]scale=#{max_width}:#{max_height}:force_original_aspect_ratio=decrease,pad=#{max_width}:#{max_height}:(ow-iw)/2:(oh-ih)/2:color=black,setsar=1[Scaled]\" -map \"[Scaled]\" #{audio_map} #{@movie.interim_paths[index]}"
         FFMPEG.logger.info("Running pre-encoding...\n#{command}\n")
         output = ""
+
+        puts command
 
         Open3.popen3(command) do |stdin, stdout, stderr, wait_thr|
           begin
@@ -136,9 +139,21 @@ module FFMPEG
       end
     end
 
-  def delete_files(destination)
-    FileUtils.rm_rf(destination, secure: true) unless destination.nil?
-  end
+    def determine_audio_for_pre_encode(path)
+      local_movie = Movie.new(path)
+      # If there's a local audio stream, use that
+      return '-map "0:a"' if local_movie.audio_streams.any?
+      # Otherwise, use a silent audio source
+      # | aevalsrc=0 will generate a silent audio source
+      # | -shortest will make sure that the output is the duration of the shortest input (meaning the real source input)
+      return '-filter_complex "aevalsrc=0[a]" -shortest -map "[a]"' if @movie.any_streams_contain_audio?
+      # Otherwise, don't include any audio
+      return ''
+    end
+
+    def delete_files(destination)
+      FileUtils.rm_rf(destination, secure: true) unless destination.nil?
+    end
 
     def transcode_movie
       pre_encode_if_necessary
