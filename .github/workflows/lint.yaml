@@ -3,12 +3,9 @@ on: pull_request
 
 jobs:
   trunk_check:
-    container: ruby:2.7.7-bullseye
+    container: ruby:3.2.2-bullseye
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Trunk Check
-        uses: trunk-io/trunk-action@v0.4.0-beta
-        with:
-          trunk-path: "./trunk"
+      - name: Run rubocop
+        run: |
+          bundle exec rubocop -P
