@@ -15,7 +15,9 @@ jobs:
       - name: Setup ffmpeg
         run: |
           curl -s -o ffmpeg-arm64.tar.xz "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz"
-          tar -xf ffmpeg-arm64.tar.xz -C /usr/bin/
+          tar -xf ffmpeg-arm64.tar.xz
+          mv ffmpeg-6.1-amd64-static/ffmpeg /usr/bin/
+          mv ffmpeg-6.1-amd64-static/ffprobe /usr/bin/
       - name: RSpec
         run: |
           bundle exec rspec
