@@ -18,3 +18,10 @@ jobs:
       - name: RSpec
         run: |
           bundle exec rspec
+  lint:
+    runs-on: ubuntu-latest
+    container: public.ecr.aws/docker/library/ruby:3.2.2
+    steps:
+      - name: Run rubocop
+        run: |
+          bundle exec rubocop -P
