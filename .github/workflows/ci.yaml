@@ -3,7 +3,7 @@ on: push
 
 jobs:
   rspec:
-    runs-on: [ubuntu-latest, x64]
+    runs-on: ubuntu-latest
     container: public.ecr.aws/docker/library/ruby:3.2.2
     steps:
       - name: Checkout
