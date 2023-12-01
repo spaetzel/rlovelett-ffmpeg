@@ -16,8 +16,10 @@ Gem::Specification.new do |s|
   s.add_dependency('multi_json', '~> 1.15.0')
   s.add_dependency('posix-spawn', '~> 0.3.15')
 
+  # rubocop:disable Gemspec/DevelopmentDependencies
   s.add_development_dependency("rspec", "~> 3.12.0")
   s.add_development_dependency("rake", ">= 13.0.6")
+  # rubocop:enable Gemspec/DevelopmentDependencies
 
   s.files        = Dir.glob("lib/**/*") + %w(README.md LICENSE CHANGELOG)
 end
