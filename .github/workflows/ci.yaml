@@ -27,7 +27,7 @@ jobs:
       - name: Install Deps
         run: |
           apt update && apt install curl -y
-          bundle
+          bundle install
       - name: Run rubocop
         run: |
           bundle exec rubocop -P
