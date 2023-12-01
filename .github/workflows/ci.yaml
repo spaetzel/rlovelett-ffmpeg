@@ -22,6 +22,10 @@ jobs:
     runs-on: ubuntu-latest
     container: public.ecr.aws/docker/library/ruby:3.2.2
     steps:
+      - name: Install Deps
+        run: |
+          apt update && apt install curl -y
+          bundle
       - name: Run rubocop
         run: |
           bundle exec rubocop -P
