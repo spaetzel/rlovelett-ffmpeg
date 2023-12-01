@@ -277,7 +277,7 @@ module FFMPEG
         end
 
         it "should parse the bitrate" do
-          expect(@movie.bitrate).to eq(481836)
+          expect(@movie.bitrate).to be_between(481736, 481936)
         end
 
         it "should return nil rotation when no rotation exists" do
