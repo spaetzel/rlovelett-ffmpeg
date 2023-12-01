@@ -14,10 +14,7 @@ jobs:
           bundle
       - name: Setup ffmpeg
         run: |
-          curl -s -o ffmpeg-amd64.tar.xz "https://johnvansickle.com/ffmpeg/builds/ffmpeg-git-amd64-static.tar.xz"
-          tar -xf ffmpeg-amd64.tar.xz
-          mv ffmpeg-6.1-amd64-static/ffmpeg /usr/bin/
-          mv ffmpeg-6.1-amd64-static/ffprobe /usr/bin/
+          apt install ffmpeg -y
       - name: RSpec
         run: |
           bundle exec rspec
