@@ -3,7 +3,6 @@ on: push
 
 jobs:
   rspec:
-    needs: dev-docker-image
     runs-on: [self-hosted, linux, x64, amzn2]
     container: public.ecr.aws/docker/library/ruby:3.2.2
     steps:
@@ -15,4 +14,3 @@ jobs:
       - name: RSpec
         run: |
           bundle exec rspec
- 
