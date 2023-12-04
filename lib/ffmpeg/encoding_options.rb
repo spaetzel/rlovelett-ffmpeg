@@ -107,12 +107,16 @@ module FFMPEG
 
     private
     def supports_option_public?(option)
+      # rubocop:disable Lint/SymbolConversion
       option = RUBY_VERSION < "1.9" ? "convert_#{option}" : "convert_#{option}".to_sym
+      # rubocop:enable Lint/SymbolConversion
       public_methods.include?(option)
     end
 
     def supports_option_private?(option)
+      # rubocop:disable Lint/SymbolConversion
       option = RUBY_VERSION < "1.9" ? "convert_#{option}" : "convert_#{option}".to_sym
+      # rubocop:enable Lint/SymbolConversion
       private_methods.include?(option)
     end
 
