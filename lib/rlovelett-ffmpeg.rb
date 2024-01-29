@@ -39,7 +39,7 @@ module FFMPEG
   # @raise Errno::ENOENT if the ffmpeg binary cannot be found
   def self.ffmpeg_binary=(bin)
     if bin.is_a?(String) && !File.executable?(bin)
-      raise Errno::ENOENT, "the ffmpeg binary, \'#{bin}\', is not executable"
+      raise Errno::ENOENT, "the ffmpeg binary found in, \'#{bin}\', is not executable"
     end
     @ffmpeg_binary = bin
   end
