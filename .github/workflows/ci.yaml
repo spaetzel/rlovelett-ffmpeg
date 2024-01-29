@@ -7,13 +7,17 @@ jobs:
     container: public.ecr.aws/docker/library/ruby:3.2.2
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Install Deps
         run: |
+          echo 'Coveralls token ' + $COVERALLS_REPO_TOKEN
           apt update && apt install ffmpeg -y
           bundle
       - name: RSpec
+        env:
+          COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
         run: |
+          echo 'rspec Coveralls token ' + $COVERALLS_REPO_TOKEN
           bundle exec rspec
   lint:
     runs-on: ubuntu-latest

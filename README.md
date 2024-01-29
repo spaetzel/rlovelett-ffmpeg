@@ -5,6 +5,8 @@ RLovelett FFMPEG
 [![Code Climate](https://codeclimate.com/github/RLovelett/rlovelett-ffmpeg/badges/gpa.svg)](https://codeclimate.com/github/RLovelett/rlovelett-ffmpeg)
 [![Test Coverage](https://codeclimate.com/github/RLovelett/rlovelett-ffmpeg/badges/coverage.svg)](https://codeclimate.com/github/RLovelett/rlovelett-ffmpeg/coverage)
 
+[![Coverage Status](https://coveralls.io/repos/github/spaetzel/rlovelett-ffmpeg/badge.svg?branch=master)](https://coveralls.io/github/spaetzel/rlovelett-ffmpeg?branch=master)
+
 ***Forked from [Streamio's](https://github.com/streamio/streamio-ffmpeg) implementation. The upstream repository appears to have stagnated.***
 
 Simple yet powerful wrapper around the ffmpeg command for reading metadata and transcoding movies.
