@@ -12,10 +12,11 @@ jobs:
         run: |
           apt update && apt install ffmpeg -y
           bundle
-          echo $COVERALLS_REPO_TOKEN
 
       - name: RSpec
         run: |
+          export COVERALLS_REPO_TOKEN=UhJeo0jOOTaKB27n08r7twECNoVxbeCvY
+          echo $COVERALLS_REPO_TOKEN
           bundle exec rspec
   lint:
     runs-on: ubuntu-latest
