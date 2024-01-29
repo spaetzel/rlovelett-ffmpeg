@@ -12,7 +12,7 @@ jobs:
         run: |
           apt update && apt install ffmpeg -y
           bundle
-
+          echo 'Coveralls token $COVERALLS_REPO_TOKEN'
       - name: RSpec
         run: |
           export COVERALLS_REPO_TOKEN=UhJeo0jOOTaKB27n08r7twECNoVxbeCvY
