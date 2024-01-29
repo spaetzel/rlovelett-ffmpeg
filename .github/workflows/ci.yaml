@@ -12,6 +12,8 @@ jobs:
         run: |
           apt update && apt install ffmpeg -y
           bundle
+          echo $COVERALLS_REPO_TOKEN
+
       - name: RSpec
         run: |
           bundle exec rspec
