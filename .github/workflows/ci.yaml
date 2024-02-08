@@ -31,7 +31,7 @@ jobs:
         if: github.event_name == 'pull_request'
         run: |
           gem install undercover
-          undercover -- compare ${{ GITHUB_BASE_REF }}
+          undercover -- compare $GITHUB_BASE_REF
   lint:
     runs-on: ubuntu-latest
     container: public.ecr.aws/docker/library/ruby:3.2.2
