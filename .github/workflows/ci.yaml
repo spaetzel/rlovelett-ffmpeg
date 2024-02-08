@@ -45,6 +45,11 @@ jobs:
           # filter-changed-files: true
           lcov-file: coverage/lcov.info
           lcov-base: master/coverage/lcov.info
+      - name: Simplecov Coverage
+        if: github.event_name == 'pull_request'
+        uses: joshmfrankel/simplecov-check-action@main
+        with:
+            github_token: ${{ secrets.GITHUB_TOKEN }}
   lint:
     runs-on: ubuntu-latest
     container: public.ecr.aws/docker/library/ruby:3.2.2

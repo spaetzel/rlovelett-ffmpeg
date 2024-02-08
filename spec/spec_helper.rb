@@ -5,8 +5,13 @@ require 'fileutils'
 
 require 'simplecov'
 require 'simplecov-lcov'
+require "simplecov-json"
 
-SimpleCov.formatter = SimpleCov::Formatter::LcovFormatter
+SimpleCov.formatters = SimpleCov::Formatter::MultiFormatter.new([
+                                                                  SimpleCov::Formatter::HTMLFormatter,
+                                                                  SimpleCov::Formatter::LcovFormatter,
+                                                                  SimpleCov::Formatter::JSONFormatter
+                                                                ])
 
 SimpleCov::Formatter::LcovFormatter.config do |c|
   c.report_with_single_file = true
