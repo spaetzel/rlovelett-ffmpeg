@@ -86,7 +86,7 @@ module FFMPEG
         [{:start => 0, :end => @movie.duration}]
       else
         uncovered = []
-        uncovered << {:start => 0, :end => @times.first[:start]} if @times.first[:start] > 0
+        uncovered << {:start => 0, :end => @times.first[:start]} if @times.first[:start].positive?
         @times.each_with_index do |time, index|
           uncovered << {:start => time[:end], :end => @times[index + 1][:start]} if @times[index + 1]
         end
