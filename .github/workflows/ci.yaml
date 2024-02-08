@@ -3,6 +3,8 @@ on: [push, pull_request]
 
 jobs:
   rspec:
+    permissions:
+      pull-requests: write
     runs-on: ubuntu-latest
     container: public.ecr.aws/docker/library/ruby:3.2.2
     steps:
