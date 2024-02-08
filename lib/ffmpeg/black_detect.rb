@@ -29,9 +29,6 @@ module FFMPEG
 
       @times = []
 
-      start_tag = 'TAG:lavfi.black_start='
-      end_tag = 'TAG:lavfi.black_end='
-
       std_output.split("\n").uniq.each do |line|
         tokens = line.split("=")
         next if tokens.length < 2
