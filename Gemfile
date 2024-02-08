@@ -7,5 +7,6 @@ gemspec
 
 group :test do
   gem 'simplecov'
+  gem 'simplecov-json'
   gem 'simplecov-lcov'
 end
