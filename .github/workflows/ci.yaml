@@ -10,13 +10,12 @@ jobs:
     runs-on: ubuntu-latest
     container: public.ecr.aws/docker/library/ruby:3.2.2
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
       - name: Install Deps
         run: |
           apt update && apt install ffmpeg -y
           bundle
-      - name: Checkout
-        uses: actions/checkout@v4
-
       - name: RSpec
         run: |
           bundle exec rspec
@@ -25,6 +24,10 @@ jobs:
         with:
           ref: master
           path: master
+      - name: Install Deps Base
+        run: |
+          cd master
+          bundle
       - name: RSpec Base
         run: |
           cd master
