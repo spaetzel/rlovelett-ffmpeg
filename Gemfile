@@ -1,14 +1,21 @@
 ruby '3.2.2'
 source "https://rubygems.org"
 
-gem 'rubocop'
+gem "rubocop", ">= 1.15.0", require: false
 
 gemspec
 
+group :pronto do
+  gem 'rubocop-performance', ">= 1.11.0", require: false
+  gem 'rubocop-rake', '>= 0.5.1', require: false
+
+  # Mainly for being run in GH Action
+  gem "pronto", require: false
+  gem "pronto-rubocop", require: false
+  gem 'pronto-undercover', require: false
+end
+
 group :test do
-  gem 'pronto'
-  gem 'pronto-rubocop'
-  gem 'pronto-undercover'
   gem 'rugged'
   gem 'simplecov'
   gem 'simplecov-lcov'
