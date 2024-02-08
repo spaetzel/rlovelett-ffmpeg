@@ -75,7 +75,6 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  coveralls_reborn
   rake (>= 13.0.6)
   rlovelett-ffmpeg!
   rspec (~> 3.12.0)

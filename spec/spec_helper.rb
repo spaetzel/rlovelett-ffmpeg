@@ -2,7 +2,6 @@ require 'bundler'
 Bundler.require
 
 require 'fileutils'
-require 'coveralls'
 
 require 'simplecov'
 require 'simplecov-lcov'
