@@ -27,11 +27,12 @@ jobs:
           delete-old-comments: true
           filter-changed-files: true
           lcov-file: coverage/lcov.info
-      - name: Undercover
+      - name: Pronto
         if: github.event_name == 'pull_request'
+        env:
+          PRONTO_GITHUB_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gem install undercover
-          bundle exec undercover -- compare $GITHUB_BASE_REF
+          pronto run -f github_pr_review -c origin/master
   lint:
     runs-on: ubuntu-latest
     container: public.ecr.aws/docker/library/ruby:3.2.2
