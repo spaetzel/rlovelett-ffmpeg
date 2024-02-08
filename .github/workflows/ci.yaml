@@ -20,25 +20,29 @@ jobs:
         run: |
           bundle exec rspec
       - name: Checkout Base
+        if: github.event_name == 'pull_request'
         uses: actions/checkout@v4
         with:
           ref: master
           path: master
       - name: Install Deps Base
+        if: github.event_name == 'pull_request'
         run: |
           cd master
           bundle
       - name: RSpec Base
+        if: github.event_name == 'pull_request'
         run: |
           cd master
           bundle exec rspec
       - name: Report Coverage
+        if: github.event_name == 'pull_request'
         uses: romeovs/lcov-reporter-action@v0.3.1
         with:
           title: Code Coverage Report
           github-token: ${{ secrets.GITHUB_TOKEN }}
           delete-old-comments: true
-          filter-changed-files: true
+          # filter-changed-files: true
           lcov-file: coverage/lcov.info
           lcov-base: master/coverage/lcov.info
   lint:
