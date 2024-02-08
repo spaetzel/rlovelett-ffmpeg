@@ -31,7 +31,7 @@ jobs:
         if: github.event_name == 'pull_request'
         run: |
           gem install undercover
-          undercover -- compare $GITHUB_BASE_REF
+          bundle exec undercover -- compare $GITHUB_BASE_REF
   lint:
     runs-on: ubuntu-latest
     container: public.ecr.aws/docker/library/ruby:3.2.2
@@ -40,6 +40,7 @@ jobs:
         uses: actions/checkout@v3
       - name: Install Deps
         run: |
+          apt update && apt install cmake -y
           bundle
       - name: Run rubocop
         env:
