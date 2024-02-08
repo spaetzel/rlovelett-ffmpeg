@@ -10,14 +10,24 @@ jobs:
     runs-on: ubuntu-latest
     container: public.ecr.aws/docker/library/ruby:3.2.2
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
       - name: Install Deps
         run: |
           apt update && apt install ffmpeg -y
           bundle
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: RSpec
         run: |
+          bundle exec rspec
+      - name: Checkout Base
+        uses: actions/checkout@v4
+        with:
+          ref: master
+          path: master
+      - name: RSpec Base
+        run: |
+          cd master
           bundle exec rspec
       - name: Report Coverage
         uses: romeovs/lcov-reporter-action@v0.3.1
@@ -26,6 +36,8 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           delete-old-comments: true
           filter-changed-files: true
+          lcov-file: coverage/lcov.info
+          lcov-base: master/coverage/lcov.info
   lint:
     runs-on: ubuntu-latest
     container: public.ecr.aws/docker/library/ruby:3.2.2
