@@ -10,15 +10,15 @@ jobs:
         uses: actions/checkout@v4
       - name: Install Deps
         run: |
-          echo 'Coveralls token ' + $COVERALLS_REPO_TOKEN
           apt update && apt install ffmpeg -y
           bundle
       - name: RSpec
-        env:
-          COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
         run: |
-          echo 'rspec Coveralls token ' + $COVERALLS_REPO_TOKEN
           bundle exec rspec
+      - name: Report Coverage
+        uses: romeovs/lcov-reporter-action@v0.2.16
+        with:
+          lcov-file: ./coverage/lcov.info
   lint:
     runs-on: ubuntu-latest
     container: public.ecr.aws/docker/library/ruby:3.2.2
@@ -29,5 +29,7 @@ jobs:
         run: |
           bundle
       - name: Run rubocop
+        env:
+          DD_ENV: ci
         run: |
           bundle exec rubocop -P
