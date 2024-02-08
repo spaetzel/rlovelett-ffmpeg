@@ -20,6 +20,8 @@ end
 
 SimpleCov.start do
   track_files 'lib/**/*.rb'
+
+  enable_coverage :branch
 end
 
 FFMPEG.logger = Logger.new(nil)
