@@ -32,7 +32,9 @@ jobs:
         env:
           PRONTO_GITHUB_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          pronto run -f github_pr_review -c origin/master
+          # pull origin/master to have a ref to compare against
+          git fetch $GITHUB_BASE_REF
+          pronto run -f github_pr_review -c $GITHUB_BASE_REF
   lint:
     runs-on: ubuntu-latest
     container: public.ecr.aws/docker/library/ruby:3.2.2

@@ -8,6 +8,7 @@ gemspec
 group :test do
   gem 'pronto'
   gem 'pronto-rubocop'
+  gem 'pronto-undercover'
   gem 'rugged'
   gem 'simplecov'
   gem 'simplecov-lcov'
