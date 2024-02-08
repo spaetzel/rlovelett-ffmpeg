@@ -6,6 +6,8 @@ gem 'rubocop'
 gemspec
 
 group :test do
+  gem 'rugged'
   gem 'simplecov'
   gem 'simplecov-lcov'
+  gem 'undercover'
 end

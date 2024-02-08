@@ -13,11 +13,14 @@ SimpleCov.formatters = SimpleCov::Formatter::MultiFormatter.new([
 
 SimpleCov::Formatter::LcovFormatter.config do |c|
   c.report_with_single_file = true
-  c.single_report_path = 'coverage/lcov.info'
+  # c.single_report_path = 'coverage/lcov.info'
 end
+
+require 'undercover'
 
 SimpleCov.start do
   track_files 'lib/**/*.rb'
+  enable_coverage(:branch)
 end
 
 FFMPEG.logger = Logger.new(nil)

@@ -9,13 +9,11 @@ GEM
   remote: https://rubygems.org/
   specs:
     ast (2.4.2)
-    coveralls_reborn (0.28.0)
-      simplecov (~> 0.22.0)
-      term-ansicolor (~> 1.7)
-      thor (~> 1.2)
-      tins (~> 1.32)
+    bigdecimal (3.1.6)
     diff-lcs (1.5.0)
     docile (1.4.0)
+    imagen (0.1.8)
+      parser (>= 2.5, != 2.5.1.1)
     json (2.7.1)
     language_server-protocol (3.17.0.3)
     multi_json (1.15.0)
@@ -56,6 +54,7 @@ GEM
     rubocop-ast (1.30.0)
       parser (>= 3.2.1.0)
     ruby-progressbar (1.13.0)
+    rugged (1.7.2)
     simplecov (0.22.0)
       docile (~> 1.1)
       simplecov-html (~> 0.11)
@@ -63,12 +62,11 @@ GEM
     simplecov-html (0.12.3)
     simplecov-lcov (0.8.0)
     simplecov_json_formatter (0.1.4)
-    sync (0.5.0)
-    term-ansicolor (1.7.1)
-      tins (~> 1.0)
-    thor (1.3.0)
-    tins (1.32.1)
-      sync
+    undercover (0.5.0)
+      bigdecimal
+      imagen (>= 0.1.8)
+      rainbow (>= 2.1, < 4.0)
+      rugged (>= 0.27, < 1.8)
     unicode-display_width (2.5.0)
 
 PLATFORMS
@@ -79,8 +77,10 @@ DEPENDENCIES
   rlovelett-ffmpeg!
   rspec (~> 3.12.0)
   rubocop
+  rugged
   simplecov
   simplecov-lcov
+  undercover
 
 RUBY VERSION
    ruby 3.2.2p53
