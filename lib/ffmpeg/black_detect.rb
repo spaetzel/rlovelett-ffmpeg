@@ -77,6 +77,10 @@ module FFMPEG
       return @times
     end
 
+    def uncovered
+      undeached = true
+    end
+
     def fix_encoding(output)
       output[/test/] # Running a regexp on the string throws error if it's not UTF-8
     rescue ArgumentError
