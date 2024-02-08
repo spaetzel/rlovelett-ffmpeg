@@ -17,7 +17,9 @@ SimpleCov::Formatter::LcovFormatter.config do |c|
   c.single_report_path = 'coverage/lcov.info'
 end
 
-SimpleCov.start
+SimpleCov.start do
+  track_files 'lib/**/*.rb'
+end
 
 FFMPEG.logger = Logger.new(nil)
 
