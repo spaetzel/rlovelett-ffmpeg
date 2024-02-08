@@ -77,8 +77,8 @@ module FFMPEG
       return @times
     end
 
-    def uncovered
-      undeached = true
+    def uncovered_two
+      print "uncovered"
     end
 
     def fix_encoding(output)
