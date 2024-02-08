@@ -2,7 +2,23 @@ require 'bundler'
 Bundler.require
 
 require 'fileutils'
-require 'coveralls'
+
+require 'simplecov'
+require 'simplecov-lcov'
+
+SimpleCov.formatters = SimpleCov::Formatter::MultiFormatter.new([
+                                                                  SimpleCov::Formatter::HTMLFormatter,
+                                                                  SimpleCov::Formatter::LcovFormatter
+                                                                ])
+
+SimpleCov::Formatter::LcovFormatter.config do |c|
+  c.report_with_single_file = true
+  c.single_report_path = 'coverage/lcov.info'
+end
+
+SimpleCov.start do
+  track_files 'lib/**/*.rb'
+end
 
 FFMPEG.logger = Logger.new(nil)
 
@@ -10,8 +26,6 @@ RSpec.configure do |config|
   config.filter_run focus: true
   config.run_all_when_everything_filtered = true
 end
-
-Coveralls.wear!
 
 def fixture_path
   @fixture_path ||= File.join(File.dirname(__FILE__), 'fixtures')
