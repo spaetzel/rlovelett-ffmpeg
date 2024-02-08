@@ -17,8 +17,6 @@ jobs:
           bundle exec rspec
       - name: Report Coverage
         uses: romeovs/lcov-reporter-action@v0.2.16
-        with:
-          lcov-file: ./coverage/lcov.info
   lint:
     runs-on: ubuntu-latest
     container: public.ecr.aws/docker/library/ruby:3.2.2
