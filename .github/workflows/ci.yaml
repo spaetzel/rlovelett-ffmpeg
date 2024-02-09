@@ -3,12 +3,7 @@ on: [push, pull_request]
 
 jobs:
   rspec:
-    permissions:
-      contents: read
-      checks: write
-      pull-requests: write
-      statuses: write
-      discussions: write
+    permissions: write-all
     runs-on: ubuntu-latest
     container: public.ecr.aws/docker/library/ruby:3.2.2
     steps:
@@ -24,11 +19,12 @@ jobs:
         run: |
           bundle exec rspec
       - name: Setup Pronto
-        run: gem install pronto pronto-rubocop
+        run: |
+          gem install pronto pronto-rubocop
+          bundle install
       - name: Run Pronto
         run: |
           set -x
-          bundle install
           git config --global --add safe.directory $GITHUB_WORKSPACE
           git fetch --no-tags --prune --depth=100 origin ${{ github.base_ref }}
           bundle exec pronto run -f github_status github_pr -c origin/${{ github.base_ref }}
