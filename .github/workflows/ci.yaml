@@ -12,6 +12,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 100
       - name: Install Deps
         run: |
           apt update && apt install ffmpeg cmake -y
