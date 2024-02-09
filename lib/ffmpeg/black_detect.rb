@@ -32,19 +32,6 @@ module FFMPEG
       start_tag = 'TAG:lavfi.black_start='
       end_tag = 'TAG:lavfi.black_end='
 
-      std_output.split("\n").uniq.each do |line|
-        tokens = line.split("=")
-        next if tokens.length < 2
-
-        time = tokens[1].to_f
-
-        if line.include?(start_tag)
-          @times << {:start => time}
-        elsif line.include?(end_tag)
-          @times.last[:end] = time
-        end
-      end
-
       pair = {:start => nil, :end => nil}
 
       @output = std_output
