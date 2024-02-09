@@ -16,15 +16,6 @@ jobs:
         run: |
           apt update && apt install ffmpeg cmake -y
           bundle
-      - name: Pronto take one
-        run: |
-          bundle install
-          su ${github.repository_owner}
-          bundle exec pronto run -f github_status github_pr -c origin/${{ github.base_ref }}"
-        env:
-          PRONTO_PULL_REQUEST_ID: ${{ github.event.pull_request.number }}
-          PRONTO_GITHUB_ACCESS_TOKEN: "${{ github.token }}"
-          BUNDLE_PATH: vendor/bundle
       - name: RSpec
         run: |
           bundle exec rspec
@@ -41,8 +32,7 @@ jobs:
       - name: Run Pronto
         run: |
           bundle install
-          su ${github.repository_owner}
-          bundle exec pronto run -f github_status github_pr -c origin/${{ github.base_ref }}"
+          su ${{github.repository_owner}} -c "bundle exec pronto run -f github_status github_pr -c origin/${{ github.base_ref }}"
         env:
           PRONTO_PULL_REQUEST_ID: ${{ github.event.pull_request.number }}
           PRONTO_GITHUB_ACCESS_TOKEN: "${{ github.token }}"
