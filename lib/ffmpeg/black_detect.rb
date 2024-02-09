@@ -88,9 +88,15 @@ module FFMPEG
         @times.each_with_index do |time, index|
           uncovered << {:start => time[:end], :end => @times[index + 1][:start]} if @times[index + 1]
         end
-        uncovered << {:start => @times.last[:end], :end => @movie.duration} if @times.last[:end] < @movie.duration
+        uncovered << {:start => @tsimes.last[:end], :end => @movie.duration} if @times.last[:end] < @movie.duration
         uncovered
 
+      end
+    end
+
+    def uncovered_two
+      (0..@times.length).each do |i|
+        print i
       end
     end
   end
