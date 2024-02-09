@@ -7,40 +7,36 @@ jobs:
       contents: read
       checks: write
       pull-requests: write
+      statuses: write
     runs-on: ubuntu-latest
     container: public.ecr.aws/docker/library/ruby:3.2.2
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 100
       - name: Install Deps
         run: |
-          apt update && apt install ffmpeg -y
+          apt update && apt install ffmpeg cmake -y
           bundle
       - name: RSpec
         run: |
           bundle exec rspec
-      - name: Checkout Base
-        uses: actions/checkout@v4
-        with:
-          ref: master
-          path: master
-      - name: Install Deps Base
+      - name: Setup Pronto
+        if: github.event_name == 'pull_request'
+        run: gem install pronto pronto-rubocop
+      - name: Run Pronto
+        if: github.event_name == 'pull_request'
         run: |
-          cd master
-          bundle
-      - name: RSpec Base
-        run: |
-          cd master
-          bundle exec rspec
-      - name: Report Coverage
-        uses: romeovs/lcov-reporter-action@v0.3.1
-        with:
-          title: Code Coverage Report
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          delete-old-comments: true
-          filter-changed-files: true
-          lcov-file: coverage/lcov.info
-          lcov-base: master/coverage/lcov.info
+          set -x
+          bundle install
+          git config --global --add safe.directory $GITHUB_WORKSPACE
+          git fetch --no-tags --prune --depth=100 origin ${{ github.base_ref }}
+          bundle exec pronto run -f github_status github_pr -c origin/${{ github.base_ref }}
+        env:
+          PRONTO_PULL_REQUEST_ID: ${{ github.event.pull_request.number }}
+          PRONTO_GITHUB_ACCESS_TOKEN: "${{ github.token }}"
+          BUNDLE_PATH: vendor/bundle
   lint:
     runs-on: ubuntu-latest
     container: public.ecr.aws/docker/library/ruby:3.2.2
@@ -49,6 +45,7 @@ jobs:
         uses: actions/checkout@v3
       - name: Install Deps
         run: |
+          apt update && apt install cmake -y
           bundle
       - name: Run rubocop
         env:
