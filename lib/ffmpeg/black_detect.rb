@@ -82,20 +82,5 @@ module FFMPEG
     rescue ArgumentError
       output.force_encoding("ISO-8859-1")
     end
-
-    # TODO: delete this
-    def uncovered
-      if @times.empty?
-        [{:start => 0, :end => @movie.duration}]
-      else
-        uncovered = []
-        uncovered << {:start => 0, :end => @times.first[:start]} if @times.first[:start] > 0
-        @times.each_with_index do |time, index|
-          uncovered << {:start => time[:end], :end => @times[index + 1][:start]} if @times[index + 1]
-        end
-        uncovered << {:start => @times.last[:end], :end => @movie.duration} if @times.last[:end] < @movie.duration
-        uncovered
-      end
-    end
   end
 end
