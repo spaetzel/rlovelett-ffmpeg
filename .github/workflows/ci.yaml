@@ -25,12 +25,13 @@ jobs:
           bundle exec rspec
       - name: Setup Pronto
         if: github.event_name == 'pull_request'
-        run: gem install pronto pronto-rubocop
+        run: |
+          gem install pronto pronto-rubocop
+          bundle install
       - name: Run Pronto
         if: github.event_name == 'pull_request'
         run: |
           set -x
-          bundle install
           git config --global --add safe.directory $GITHUB_WORKSPACE
           git fetch --no-tags --prune --depth=100 origin ${{ github.base_ref }}
           bundle exec pronto run -f github_status github_pr -c origin/${{ github.base_ref }}
