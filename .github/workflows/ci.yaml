@@ -7,6 +7,7 @@ jobs:
       contents: read
       checks: write
       pull-requests: write
+      statuses: write
     runs-on: ubuntu-latest
     container: public.ecr.aws/docker/library/ruby:3.2.3
     steps:
