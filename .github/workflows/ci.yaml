@@ -42,13 +42,11 @@ jobs:
     container: public.ecr.aws/docker/library/ruby:3.2.2
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Install Deps
         run: |
           apt update && apt install cmake -y
           bundle
       - name: Run rubocop
-        env:
-          DD_ENV: ci
         run: |
           bundle exec rubocop -P
