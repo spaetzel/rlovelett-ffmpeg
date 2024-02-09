@@ -29,7 +29,7 @@ jobs:
           bundle exec pronto run -f github_status github_pr -c origin/${{ github.base_ref }}
         env:
           PRONTO_PULL_REQUEST_ID: ${{ github.event.pull_request.number }}
-          PRONTO_GITHUB_ACCESS_TOKEN: "super secret"
+          PRONTO_GITHUB_ACCESS_TOKEN: "${{ github.token }}"
           BUNDLE_PATH: vendor/bundle
   lint:
     runs-on: ubuntu-latest
