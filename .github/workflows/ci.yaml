@@ -16,6 +16,17 @@ jobs:
         run: |
           apt update && apt install ffmpeg cmake -y
           bundle
+      - name: Setup pronto
+        run: gem install pronto pronto-rubocop
+      - name: Run Pronto
+        run: |
+          bundle install
+          git config --global --add safe.directory *
+          su ${{github.repository_owner}} -c "bundle exec pronto run -f github_status github_pr -c origin/${{ github.base_ref }}"
+        env:
+          PRONTO_PULL_REQUEST_ID: ${{ github.event.pull_request.number }}
+          PRONTO_GITHUB_ACCESS_TOKEN: "${{ github.token }}"
+          BUNDLE_PATH: vendor/bundle
       - name: RSpec
         run: |
           bundle exec rspec
@@ -27,16 +38,6 @@ jobs:
           delete-old-comments: true
           filter-changed-files: true
           lcov-file: coverage/lcov.info
-      - name: Setup pronto
-        run: gem install pronto pronto-rubocop
-      - name: Run Pronto
-        run: |
-          bundle install
-          su ${{github.repository_owner}} -c "bundle exec pronto run -f github_status github_pr -c origin/${{ github.base_ref }}"
-        env:
-          PRONTO_PULL_REQUEST_ID: ${{ github.event.pull_request.number }}
-          PRONTO_GITHUB_ACCESS_TOKEN: "${{ github.token }}"
-          BUNDLE_PATH: vendor/bundle
   lint:
     runs-on: ubuntu-latest
     container: public.ecr.aws/docker/library/ruby:3.2.2
