@@ -23,7 +23,7 @@ jobs:
           set -x
           bundle install
           git config --global --add safe.directory $GITHUB_WORKSPACE
-          git fetch --no-tags --prune --depth=10 origin ${{ github.base_ref }}
+          git fetch --no-tags --prune origin ${{ github.base_ref }}
           bundle exec pronto run -f github_status github_pr -c origin/${{ github.base_ref }}
         env:
           PRONTO_PULL_REQUEST_ID: ${{ github.event.pull_request.number }}
