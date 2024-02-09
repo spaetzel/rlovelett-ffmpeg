@@ -23,10 +23,8 @@ jobs:
         run: |
           bundle exec rspec
       - name: Setup Pronto
-        if: github.event_name == 'pull_request'
         run: gem install pronto pronto-rubocop
       - name: Run Pronto
-        if: github.event_name == 'pull_request'
         run: |
           set -x
           bundle install
