@@ -9,7 +9,7 @@ jobs:
       pull-requests: write
       statuses: write
     runs-on: ubuntu-latest
-    container: public.ecr.aws/docker/library/ruby:3.2.3
+    container: public.ecr.aws/docker/library/ruby:3.2.2
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -22,7 +22,7 @@ jobs:
       - name: RSpec
         run: |
           bundle exec rspec
-      - name: Setup pronto
+      - name: Setup Pronto
         run: gem install pronto pronto-rubocop
       - name: Run Pronto
         run: |

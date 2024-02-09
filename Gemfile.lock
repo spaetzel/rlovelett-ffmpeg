@@ -116,7 +116,7 @@ GEM
     uri (0.13.0)
 
 PLATFORMS
-  arm64-darwin-23
+  ruby
 
 DEPENDENCIES
   faraday-retry
@@ -126,15 +126,15 @@ DEPENDENCIES
   rake (>= 13.0.6)
   rlovelett-ffmpeg!
   rspec (~> 3.12.0)
-  rubocop (>= 1.15.0)
-  rubocop-performance (>= 1.11.0)
-  rubocop-rake (>= 0.5.1)
+  rubocop
+  rubocop-performance
+  rubocop-rake
   rugged
   simplecov
   simplecov-lcov
 
 RUBY VERSION
-   ruby 3.2.3p157
+   ruby 3.2.2p53
 
 BUNDLED WITH
    2.4.12

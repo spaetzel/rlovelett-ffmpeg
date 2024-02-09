@@ -1,13 +1,13 @@
-ruby '3.2.3'
+ruby '3.2.2'
 source "https://rubygems.org"
 
-gem "rubocop", ">= 1.15.0", require: false
+gem 'rubocop'
 
 gemspec
 
 group :pronto do
-  gem 'rubocop-performance', ">= 1.11.0", require: false
-  gem 'rubocop-rake', '>= 0.5.1', require: false
+  gem 'rubocop-performance', require: false
+  gem 'rubocop-rake', require: false
 
   # Mainly for being run in GH Action
   gem 'faraday-retry', require: false
