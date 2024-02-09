@@ -77,10 +77,6 @@ module FFMPEG
       return @times
     end
 
-    def uncovered_two
-      print "uncovered"
-    end
-
     def fix_encoding(output)
       output[/test/] # Running a regexp on the string throws error if it's not UTF-8
     rescue ArgumentError

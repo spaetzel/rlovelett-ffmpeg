@@ -39,8 +39,6 @@ module FFMPEG
         end
 
         it "should run ffmpeg successfully" do
-          @movie.another_method
-
           expect(@movie.duration).to be_within(0.01).of(7.56)
           expect(@movie.frame_rate).to be_within(0.01).of(16.75)
           expect(@movie.error).to be(nil)
