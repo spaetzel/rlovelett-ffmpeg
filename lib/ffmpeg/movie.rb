@@ -215,6 +215,12 @@ module FFMPEG
       @paths.first
     end
 
+    def another_method
+      for i in 0..5 do
+        puts i
+      end
+    end
+
     def unescaped_path
       @unescaped_paths.first
     end
