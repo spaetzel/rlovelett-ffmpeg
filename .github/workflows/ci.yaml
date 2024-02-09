@@ -18,6 +18,17 @@ jobs:
         run: |
           apt update && apt install ffmpeg cmake -y
           bundle
+      - name: RSpec
+        run: |
+          bundle exec rspec
+      - name: Report Coverage
+        uses: romeovs/lcov-reporter-action@v0.3.1
+        with:
+          title: Code Coverage Report
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          delete-old-comments: true
+          filter-changed-files: true
+          lcov-file: coverage/lcov.info
       - name: Setup pronto
         run: gem install pronto pronto-rubocop
       - name: Run Pronto
@@ -31,17 +42,6 @@ jobs:
           PRONTO_PULL_REQUEST_ID: ${{ github.event.pull_request.number }}
           PRONTO_GITHUB_ACCESS_TOKEN: "${{ github.token }}"
           BUNDLE_PATH: vendor/bundle
-      - name: RSpec
-        run: |
-          bundle exec rspec
-      - name: Report Coverage
-        uses: romeovs/lcov-reporter-action@v0.3.1
-        with:
-          title: Code Coverage Report
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          delete-old-comments: true
-          filter-changed-files: true
-          lcov-file: coverage/lcov.info
   lint:
     runs-on: ubuntu-latest
     container: public.ecr.aws/docker/library/ruby:3.2.2
