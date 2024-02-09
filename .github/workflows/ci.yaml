@@ -48,7 +48,5 @@ jobs:
           apt update && apt install cmake -y
           bundle
       - name: Run rubocop
-        env:
-          DD_ENV: ci
         run: |
           bundle exec rubocop -P

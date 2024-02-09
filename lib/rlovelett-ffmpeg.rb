@@ -13,7 +13,7 @@ require 'ffmpeg/encoding_options'
 
 module FFMPEG
   # FFMPEG logs information about its progress when it's transcoding.
-  # Configure your own logger in this method if you wish to.
+  # Jack in your own logger through this method if you wish to.
   #
   # @param [Logger] log your own logger
   # @return [Logger] the logger you set
