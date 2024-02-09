@@ -17,6 +17,8 @@ GEM
       faraday-net_http (>= 2.0, < 3.2)
     faraday-net_http (3.1.0)
       net-http
+    faraday-retry (2.2.0)
+      faraday (~> 2.0)
     gitlab (4.19.0)
       httparty (~> 0.20)
       terminal-table (>= 1.5.1)
@@ -114,9 +116,10 @@ GEM
     uri (0.13.0)
 
 PLATFORMS
-  ruby
+  arm64-darwin-23
 
 DEPENDENCIES
+  faraday-retry
   pronto
   pronto-rubocop
   pronto-undercover
@@ -131,7 +134,7 @@ DEPENDENCIES
   simplecov-lcov
 
 RUBY VERSION
-   ruby 3.2.2p53
+   ruby 3.2.3p157
 
 BUNDLED WITH
    2.4.12
