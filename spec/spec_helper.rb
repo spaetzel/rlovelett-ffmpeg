@@ -13,8 +13,6 @@ SimpleCov.formatters = SimpleCov::Formatter::MultiFormatter.new([
 
 SimpleCov::Formatter::LcovFormatter.config.report_with_single_file = true
 
-require 'undercover'
-
 SimpleCov.start do
   track_files 'lib/**/*.rb'
   enable_coverage(:branch)
