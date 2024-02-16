@@ -26,11 +26,7 @@ jobs:
         run: |
           gem install pronto pronto-rubocop
       - name: Run Pronto
-        run: |
-          bundle install
-          git config --global --add safe.directory $GITHUB_WORKSPACE
-          git fetch --no-tags --prune --depth=100 origin ${{ github.base_ref }}
-          bundle exec pronto run -f github_status github_pr -c origin/${{ github.base_ref }}
+        uses: HeRoMo/pronto-action@v1.60.0
         env:
           PRONTO_PULL_REQUEST_ID: ${{ github.event.pull_request.number }}
           PRONTO_GITHUB_ACCESS_TOKEN: "${{ github.token }}"
